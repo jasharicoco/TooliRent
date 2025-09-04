@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TooliRent.Core.Models;
 using TooliRent.Infrastructure.Data;
 using TooliRent.WebAPI.Auth;
@@ -144,17 +145,27 @@ namespace TooliRent.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = _userManager.Users.ToList(); // Hämta alla användare
-            var result = new List<UserWithRolesDto>();
+            // Hämta alla kunder som en lookup dictionary (UserId -> CustomerId)
+            var customerLookup = _context.Customers
+                .AsNoTracking()
+                .ToDictionary(c => c.UserId, c => c.Id);
 
+            // Hämta alla användare
+            var users = _userManager.Users.ToList();
+
+            // Skapa DTOs
+            var result = new List<UserWithRolesDto>();
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
+                customerLookup.TryGetValue(user.Id, out var customerId);
+
                 result.Add(new UserWithRolesDto(
                     user.Id,
                     user.Email ?? "",
-                    user.UserName ?? "",
-                    roles
+                    user.FirstName + " " + user.LastName,
+                    roles,
+                    customerId
                 ));
             }
 
