@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -8,6 +9,7 @@ using System.Text;
 using TooliRent.Core.Models;
 using TooliRent.Infrastructure.Data;
 using TooliRent.Services.Validators;
+using TooliRent.WebAPI.Auth;
 
 namespace TooliRent
 {
@@ -99,6 +101,11 @@ namespace TooliRent
             // -------------------------------
             builder.Services.AddValidatorsFromAssemblyContaining<ReviewValidator>();
             //builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+
+            // -------------------------------
+            // Repositories & Services
+            // -------------------------------
+            builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
             var app = builder.Build();
 
