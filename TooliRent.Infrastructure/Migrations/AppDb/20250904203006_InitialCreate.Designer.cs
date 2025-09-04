@@ -12,7 +12,7 @@ using TooliRent.Infrastructure.Data;
 namespace TooliRent.Infrastructure.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250904132429_InitialCreate")]
+    [Migration("20250904203006_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

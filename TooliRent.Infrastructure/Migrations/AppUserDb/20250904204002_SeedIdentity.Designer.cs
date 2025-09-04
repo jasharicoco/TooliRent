@@ -12,8 +12,8 @@ using TooliRent.Infrastructure.Data;
 namespace TooliRent.Infrastructure.Migrations.AppUserDb
 {
     [DbContext(typeof(AppUserDbContext))]
-    [Migration("20250904132445_InitialIdentity")]
-    partial class InitialIdentity
+    [Migration("20250904204002_SeedIdentity")]
+    partial class SeedIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,6 +50,20 @@ namespace TooliRent.Infrastructure.Migrations.AppUserDb
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "1",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "2",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -137,6 +151,18 @@ namespace TooliRent.Infrastructure.Migrations.AppUserDb
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "a1",
+                            RoleId = "1"
+                        },
+                        new
+                        {
+                            UserId = "u1",
+                            RoleId = "2"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -232,6 +258,46 @@ namespace TooliRent.Infrastructure.Migrations.AppUserDb
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "a1",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "STATIC-ADMIN-ROLE-CONCURRENCYSTAMP",
+                            CreatedAt = new DateTime(2025, 9, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "admin@asd.com",
+                            EmailConfirmed = true,
+                            FirstName = "Admin",
+                            LastName = "User",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@ASD.COM",
+                            NormalizedUserName = "ADMIN@ASD.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHfdPaPu3AoXt73wEtI9kk74dORAiPsgVJVbKJDfU6UNi2wjuO11LCYGHrCwUxlthQ==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "STATIC-ADMIN-SECURITYSTAMP",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@asd.com"
+                        },
+                        new
+                        {
+                            Id = "u1",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "STATIC-ADMIN-ROLE-CONCURRENCYSTAMP",
+                            CreatedAt = new DateTime(2025, 9, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "user@asd.com",
+                            EmailConfirmed = true,
+                            FirstName = "Regular",
+                            LastName = "User",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "USER@ASD.COM",
+                            NormalizedUserName = "USER@ASD.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJHOQD8WJ9FhT7jFt5WPjdw+iA6FmLgQSsWA+9ranctpdC3Xy2v4vtign4B+sADe+g==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "STATIC-ADMIN-SECURITYSTAMP",
+                            TwoFactorEnabled = false,
+                            UserName = "user@asd.com"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
