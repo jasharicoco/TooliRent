@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace TooliRent.Infrastructure.Migrations.AppDb
 {
     /// <inheritdoc />
@@ -82,7 +84,7 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Condition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ToolCategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -106,7 +108,7 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     ToolId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -135,7 +137,7 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RentalId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -171,6 +173,29 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                         principalTable: "Rental",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "ToolCategory",
+                columns: new[] { "Id", "Description", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Elektriska borrmaskiner för trä, metall och betong", "Borrmaskiner" },
+                    { 2, "Handsäger och elektriska sågar för olika material", "Sågar" },
+                    { 3, "Verktyg för trädgårdsskötsel och underhåll", "Trädgårdsverktyg" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Tool",
+                columns: new[] { "Id", "Condition", "Description", "ImageUrl", "Name", "Price", "ToolCategoryId" },
+                values: new object[,]
+                {
+                    { 1, "Good", "Slagborrmaskin 500W med flera hastigheter", "https://example.com/images/bosch-drill.jpg", "Bosch Borrmaskin", 199.00m, 1 },
+                    { 2, "New", "Kraftfull slagborrmaskin för betong", "https://example.com/images/makita-drill.jpg", "Makita Slagborr", 299.00m, 1 },
+                    { 3, "Good", "Elektrisk cirkelsåg för precis kapning", "https://example.com/images/circular-saw.jpg", "Cirkelsåg", 249.00m, 2 },
+                    { 4, "Used", "Klassisk handsåg för trä", null, "Handsåg", 49.00m, 2 },
+                    { 5, "Good", "Elektrisk trimmer för gräskanter", "https://example.com/images/grass-trimmer.jpg", "Grästrimmer", 149.00m, 3 },
+                    { 6, "New", "Elektrisk häcksax för buskar och häckar", null, "Häcksax", 179.00m, 3 }
                 });
 
             migrationBuilder.CreateIndex(

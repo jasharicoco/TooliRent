@@ -167,7 +167,28 @@ namespace TooliRent.Infrastructure.Migrations.AppUserDb
                 values: new object[,]
                 {
                     { "1", null, "Admin", "ADMIN" },
-                    { "2", null, "User", "USER" }
+                    { "2", null, "User", "USER" },
+                    { "3", null, "Customer", "CUSTOMER" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[,]
+                {
+                    { "a1", 0, "STATIC-ADMIN-ROLE-CONCURRENCYSTAMP", new DateTime(2025, 9, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@asd.com", true, "Admin", "User", false, null, "ADMIN@ASD.COM", "ADMIN@ASD.COM", "AQAAAAIAAYagAAAAEHfdPaPu3AoXt73wEtI9kk74dORAiPsgVJVbKJDfU6UNi2wjuO11LCYGHrCwUxlthQ==", null, false, "STATIC-ADMIN-SECURITYSTAMP", false, "admin@asd.com" },
+                    { "c1", 0, "STATIC-CUSTOMER-ROLE-CONCURRENCYSTAMP", new DateTime(2025, 9, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), "customer@asd.com", true, "Customer", "User", false, null, "CUSTOMER@ASD.COM", "CUSTOMER@ASD.COM", "AQAAAAIAAYagAAAAEJHOQD8WJ9FhT7jFt5WPjdw+iA6FmLgQSsWA+9ranctpdC3Xy2v4vtign4B+sADe+g==", null, false, "STATIC-CUSTOMER-SECURITYSTAMP", false, "customer@asd.com" },
+                    { "u1", 0, "STATIC-ADMIN-ROLE-CONCURRENCYSTAMP", new DateTime(2025, 9, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), "user@asd.com", true, "Regular", "User", false, null, "USER@ASD.COM", "USER@ASD.COM", "AQAAAAIAAYagAAAAEJHOQD8WJ9FhT7jFt5WPjdw+iA6FmLgQSsWA+9ranctpdC3Xy2v4vtign4B+sADe+g==", null, false, "STATIC-ADMIN-SECURITYSTAMP", false, "user@asd.com" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[,]
+                {
+                    { "1", "a1" },
+                    { "3", "c1" },
+                    { "2", "u1" }
                 });
 
             migrationBuilder.CreateIndex(

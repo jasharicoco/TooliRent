@@ -1,4 +1,6 @@
-﻿namespace TooliRent.Core.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace TooliRent.Core.Models
 {
     public class Rental
     {
@@ -9,6 +11,8 @@
         public Tool Tool { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+
+        [Precision(18, 2)]
         public decimal TotalPrice { get; set; }
         public RentalStatus Status { get; set; } // enum
         public DateTime CreatedAt { get; set; }

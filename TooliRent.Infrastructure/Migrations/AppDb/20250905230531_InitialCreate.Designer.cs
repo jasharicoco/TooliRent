@@ -12,7 +12,7 @@ using TooliRent.Infrastructure.Data;
 namespace TooliRent.Infrastructure.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250904203006_InitialCreate")]
+    [Migration("20250905230531_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -117,6 +117,7 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("PaymentDate")
@@ -171,6 +172,7 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -235,6 +237,7 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ToolCategoryId")
@@ -245,6 +248,66 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     b.HasIndex("ToolCategoryId");
 
                     b.ToTable("Tool", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Condition = "Good",
+                            Description = "Slagborrmaskin 500W med flera hastigheter",
+                            ImageUrl = "https://example.com/images/bosch-drill.jpg",
+                            Name = "Bosch Borrmaskin",
+                            Price = 199.00m,
+                            ToolCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Condition = "New",
+                            Description = "Kraftfull slagborrmaskin för betong",
+                            ImageUrl = "https://example.com/images/makita-drill.jpg",
+                            Name = "Makita Slagborr",
+                            Price = 299.00m,
+                            ToolCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Condition = "Good",
+                            Description = "Elektrisk cirkelsåg för precis kapning",
+                            ImageUrl = "https://example.com/images/circular-saw.jpg",
+                            Name = "Cirkelsåg",
+                            Price = 249.00m,
+                            ToolCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Condition = "Used",
+                            Description = "Klassisk handsåg för trä",
+                            Name = "Handsåg",
+                            Price = 49.00m,
+                            ToolCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Condition = "Good",
+                            Description = "Elektrisk trimmer för gräskanter",
+                            ImageUrl = "https://example.com/images/grass-trimmer.jpg",
+                            Name = "Grästrimmer",
+                            Price = 149.00m,
+                            ToolCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Condition = "New",
+                            Description = "Elektrisk häcksax för buskar och häckar",
+                            Name = "Häcksax",
+                            Price = 179.00m,
+                            ToolCategoryId = 3
+                        });
                 });
 
             modelBuilder.Entity("TooliRent.Core.Models.ToolCategory", b =>
@@ -266,6 +329,26 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     b.HasKey("Id");
 
                     b.ToTable("ToolCategory", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Elektriska borrmaskiner för trä, metall och betong",
+                            Name = "Borrmaskiner"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Handsäger och elektriska sågar för olika material",
+                            Name = "Sågar"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Verktyg för trädgårdsskötsel och underhåll",
+                            Name = "Trädgårdsverktyg"
+                        });
                 });
 
             modelBuilder.Entity("TooliRent.Core.Models.Customer", b =>

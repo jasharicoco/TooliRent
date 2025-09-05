@@ -12,8 +12,8 @@ using TooliRent.Infrastructure.Data;
 namespace TooliRent.Infrastructure.Migrations.AppUserDb
 {
     [DbContext(typeof(AppUserDbContext))]
-    [Migration("20250904204002_SeedIdentity")]
-    partial class SeedIdentity
+    [Migration("20250905230550_InitialIdentity")]
+    partial class InitialIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,6 +63,12 @@ namespace TooliRent.Infrastructure.Migrations.AppUserDb
                             Id = "2",
                             Name = "User",
                             NormalizedName = "USER"
+                        },
+                        new
+                        {
+                            Id = "3",
+                            Name = "Customer",
+                            NormalizedName = "CUSTOMER"
                         });
                 });
 
@@ -162,6 +168,11 @@ namespace TooliRent.Infrastructure.Migrations.AppUserDb
                         {
                             UserId = "u1",
                             RoleId = "2"
+                        },
+                        new
+                        {
+                            UserId = "c1",
+                            RoleId = "3"
                         });
                 });
 
@@ -297,6 +308,25 @@ namespace TooliRent.Infrastructure.Migrations.AppUserDb
                             SecurityStamp = "STATIC-ADMIN-SECURITYSTAMP",
                             TwoFactorEnabled = false,
                             UserName = "user@asd.com"
+                        },
+                        new
+                        {
+                            Id = "c1",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "STATIC-CUSTOMER-ROLE-CONCURRENCYSTAMP",
+                            CreatedAt = new DateTime(2025, 9, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "customer@asd.com",
+                            EmailConfirmed = true,
+                            FirstName = "Customer",
+                            LastName = "User",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "CUSTOMER@ASD.COM",
+                            NormalizedUserName = "CUSTOMER@ASD.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJHOQD8WJ9FhT7jFt5WPjdw+iA6FmLgQSsWA+9ranctpdC3Xy2v4vtign4B+sADe+g==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "STATIC-CUSTOMER-SECURITYSTAMP",
+                            TwoFactorEnabled = false,
+                            UserName = "customer@asd.com"
                         });
                 });
 
