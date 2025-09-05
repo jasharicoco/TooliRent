@@ -1,6 +1,9 @@
-﻿namespace TooliRent.Infrastructure.Repositories.Interfaces
+﻿using TooliRent.Core.Models;
+
+namespace TooliRent.Infrastructure.Repositories.Interfaces
 {
-    internal interface IToolRepository
+    public interface IToolRepository : IGenericRepository<Tool>
     {
+        Task<IEnumerable<Rental>> GetRentalsByToolIdAsync(int toolId);
     }
 }

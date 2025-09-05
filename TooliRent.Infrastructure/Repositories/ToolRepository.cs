@@ -1,6 +1,34 @@
-﻿namespace TooliRent.Infrastructure.Repositories
+﻿using Microsoft.EntityFrameworkCore;
+using TooliRent.Core.Models;
+using TooliRent.Infrastructure.Data;
+using TooliRent.Infrastructure.Repositories.Interfaces;
+
+namespace TooliRent.Infrastructure.Repositories
 {
-    internal class ToolRepository
+    public class ToolRepository : GenericRepository<Tool>, IToolRepository
     {
+        public ToolRepository(AppDbContext context) : base(context) { }
+
+        public async Task<IEnumerable<Rental>> GetRentalsByToolIdAsync(int toolId)
+        {
+            return await _context.Rentals
+                .Where(r => r.ToolId == toolId)
+                .ToListAsync();
+        }
+
+        public override async Task<IEnumerable<Tool>> GetAllAsync()
+        {
+            return await _context.Tools
+                .Include(t => t.ToolCategory)
+                .ToListAsync();
+        }
+
+        public override async Task<Tool?> GetByIdAsync(int id)
+        {
+            return await _context.Tools
+                .Include(t => t.ToolCategory)
+                .Include(t => t.Rentals)
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TooliRent.Services.DTOs
 {
-    internal class ToolCategoryDto
+    public class ToolCategoryDto
     {
     }
 }

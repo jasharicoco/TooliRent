@@ -1,6 +1,6 @@
 ﻿namespace TooliRent.Infrastructure.Repositories
 {
-    internal class ReviewRepository
+    public class ReviewRepository
     {
     }
 }

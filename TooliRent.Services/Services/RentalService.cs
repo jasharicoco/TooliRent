@@ -1,6 +1,15 @@
-﻿namespace TooliRent.Services.Services
+﻿using TooliRent.Infrastructure.Repositories.Interfaces;
+using TooliRent.Services.Services.Interfaces;
+
+namespace TooliRent.Services.Services
 {
-    internal class RentalService
+    public class RentalService : IRentalService
     {
+        private readonly IRentalRepository _repo;
+
+        public RentalService(IRentalRepository repo)
+        {
+            _repo = repo;
+        }
     }
 }

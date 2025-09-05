@@ -1,6 +1,11 @@
-﻿namespace TooliRent.Services.Services.Interfaces
+﻿using TooliRent.Core.Models;
+using TooliRent.Services.DTOs;
+
+namespace TooliRent.Services.Services.Interfaces
 {
-    internal interface IToolService
+    public interface IToolService
+        : IGenericService<Tool, ToolDto, CreateToolDto, UpdateToolDto>
     {
+        Task<IEnumerable<RentalDto>> GetRentalsForTool(int toolId);
     }
 }

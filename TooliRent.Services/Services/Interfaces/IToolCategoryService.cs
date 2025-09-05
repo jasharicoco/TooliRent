@@ -1,6 +1,6 @@
 ﻿namespace TooliRent.Services.Services.Interfaces
 {
-    internal interface IToolCategoryService
+    public interface IToolCategoryService
     {
     }
 }

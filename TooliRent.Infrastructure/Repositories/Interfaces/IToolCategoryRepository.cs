@@ -1,6 +1,8 @@
-﻿namespace TooliRent.Infrastructure.Repositories.Interfaces
+﻿using TooliRent.Core.Models;
+
+namespace TooliRent.Infrastructure.Repositories.Interfaces
 {
-    internal interface IToolCategoryRepository
+    public interface IToolCategoryRepository : IGenericRepository<ToolCategory>
     {
     }
 }

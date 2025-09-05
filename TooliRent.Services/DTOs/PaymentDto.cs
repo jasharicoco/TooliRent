@@ -1,6 +1,6 @@
 ﻿namespace TooliRent.Services.DTOs
 {
-    internal class PaymentDto
+    public class PaymentDto
     {
     }
 }

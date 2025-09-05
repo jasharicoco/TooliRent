@@ -1,6 +1,6 @@
 ﻿namespace TooliRent.Services.Mapping
 {
-    internal class ReviewProfile
+    public class ReviewProfile
     {
     }
 }

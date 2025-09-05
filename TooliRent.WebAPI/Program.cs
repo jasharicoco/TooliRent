@@ -8,6 +8,11 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TooliRent.Core.Models;
 using TooliRent.Infrastructure.Data;
+using TooliRent.Infrastructure.Repositories;
+using TooliRent.Infrastructure.Repositories.Interfaces;
+using TooliRent.Services.Mapping;
+using TooliRent.Services.Services;
+using TooliRent.Services.Services.Interfaces;
 using TooliRent.Services.Validators;
 using TooliRent.WebAPI.Auth;
 
@@ -103,9 +108,26 @@ namespace TooliRent
             //builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
             // -------------------------------
+            // AutoMapper
+            // -------------------------------
+            builder.Services.AddAutoMapper(typeof(ToolProfile));
+
+            // -------------------------------
             // Repositories & Services
             // -------------------------------
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<IToolService, ToolService>();
+            builder.Services.AddScoped<IToolCategoryService, ToolCategoryService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IRentalService, RentalService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IToolRepository, ToolRepository>();
+            builder.Services.AddScoped<IToolCategoryRepository, ToolCategoryRepository>();
+            builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+            builder.Services.AddScoped<IRentalRepository, RentalRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
             var app = builder.Build();
 

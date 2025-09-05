@@ -1,6 +1,6 @@
 ﻿namespace TooliRent.Services.Mapping
 {
-    internal class PaymentProfile
+    public class PaymentProfile
     {
     }
 }

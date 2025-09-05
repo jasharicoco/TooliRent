@@ -1,6 +1,8 @@
-﻿namespace TooliRent.Services.Services
+﻿using TooliRent.Services.Services.Interfaces;
+
+namespace TooliRent.Services.Services
 {
-    internal class ReviewService
+    public class ReviewService : IReviewService
     {
     }
 }
