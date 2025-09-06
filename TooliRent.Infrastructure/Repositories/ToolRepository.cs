@@ -9,6 +9,14 @@ namespace TooliRent.Infrastructure.Repositories
     {
         public ToolRepository(AppDbContext context) : base(context) { }
 
+        public async Task<IEnumerable<Tool>> GetAllWithCategoryAndRentalsAsync()
+        {
+            return await _context.Tools
+                .Include(t => t.ToolCategory)
+                .Include(t => t.Rentals)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Rental>> GetRentalsByToolIdAsync(int toolId)
         {
             return await _context.Rentals

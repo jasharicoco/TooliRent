@@ -24,5 +24,24 @@ namespace TooliRent.Services.Services
             var rentals = await _toolRepository.GetRentalsByToolIdAsync(toolId);
             return _mapper.Map<IEnumerable<RentalDto>>(rentals);
         }
+
+        public async Task<IEnumerable<ToolDto>> GetFilteredAsync(int? categoryId, string? condition, bool? availableOnly)
+        {
+            var tools = await _toolRepository.GetAllWithCategoryAndRentalsAsync();
+
+            if (categoryId.HasValue)
+                tools = tools.Where(t => t.ToolCategoryId == categoryId.Value);
+
+            if (!string.IsNullOrEmpty(condition) && Enum.TryParse<ToolCondition>(condition, true, out var parsedCondition))
+                tools = tools.Where(t => t.Condition == parsedCondition);
+
+            if (availableOnly == true)
+            {
+                tools = tools.Where(t =>
+                    !t.Rentals.Any(r => r.EndDate == null || r.EndDate > DateTime.UtcNow));
+            }
+
+            return _mapper.Map<IEnumerable<ToolDto>>(tools);
+        }
     }
 }

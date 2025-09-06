@@ -1,6 +1,21 @@
 ﻿namespace TooliRent.Services.DTOs
 {
-    public class RentalDto
+    public record RentalDto
     {
+        public int Id { get; init; }
+        public int CustomerId { get; init; }
+        public string CustomerName { get; init; }
+        public int ToolId { get; init; }
+        public string ToolName { get; init; }
+        public DateTime StartDate { get; init; }
+        public DateTime EndDate { get; init; }
+        public decimal TotalPrice { get; init; }
+        public string Status { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public DateTime ModifiedAt { get; init; }
     }
+
+    public record CreateRentalDto(int CustomerId, int ToolId, DateTime StartDate, DateTime EndDate);
+
+    public record UpdateRentalDto(DateTime? EndDate, string? Status);
 }
