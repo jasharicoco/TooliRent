@@ -9,11 +9,11 @@ using TooliRent.Infrastructure.Data;
 
 #nullable disable
 
-namespace TooliRent.Infrastructure.Migrations.AppDb
+namespace TooliRent.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250905230531_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250907132229_InitAppDb")]
+    partial class InitAppDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -121,7 +121,9 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
@@ -150,7 +152,9 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -159,7 +163,9 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");

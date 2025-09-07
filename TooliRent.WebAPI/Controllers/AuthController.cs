@@ -29,6 +29,118 @@ namespace TooliRent.WebAPI.Controllers
             _tokens = tokens;
         }
 
+        [HttpGet("all-users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var customerLookup = await _context.Customers
+                .AsNoTracking()
+                .ToDictionaryAsync(c => c.UserId, c => c.Id);
+
+            var users = await _userManager.Users.ToListAsync();
+
+            var result = new List<UserWithRolesDto>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                customerLookup.TryGetValue(user.Id, out var customerId);
+
+                // Beräkna om användaren är aktiv
+                var isActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow);
+
+                // Hämta bokningar om du vill inkludera dem
+                var rentals = await _context.Rentals
+                    .AsNoTracking()
+                    .Where(r => r.CustomerId == customerId)
+                    .ToListAsync();
+
+                var activeRentalIds = rentals
+                    .Where(r => r.Status == RentalStatus.Pending || r.Status == RentalStatus.Confirmed)
+                    .Select(r => r.Id)
+                    .ToList();
+
+                var pastRentalIds = rentals
+                    .Where(r => r.EndDate < DateTime.UtcNow)
+                    .Select(r => r.Id)
+                    .ToList();
+
+                result.Add(new UserWithRolesDto(
+                    customerId,
+                    user.Id,
+                    user.Email ?? "",
+                    user.FirstName + " " + user.LastName,
+                    roles,
+                    isActive,
+                    activeRentalIds,
+                    pastRentalIds
+                ));
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("user/{customerId:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserById(int customerId)
+        {
+            var customer = await _context.Customers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == customerId);
+
+            if (customer == null)
+                return NotFound(new { Errors = new[] { "Customer not found." } });
+
+            var user = await _userManager.FindByIdAsync(customer.UserId);
+            if (user == null)
+                return NotFound(new { Errors = new[] { "Associated user not found." } });
+
+            var isActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow);
+
+            var rentals = await _context.Rentals
+                .AsNoTracking()
+                .Where(r => r.CustomerId == customerId)
+                .ToListAsync();
+
+            var activeRentalIds = rentals
+                .Where(r => r.Status == RentalStatus.Pending || r.Status == RentalStatus.Confirmed)
+                .Select(r => r.Id)
+                .ToList();
+
+            var pastRentalIds = rentals
+                .Where(r => r.EndDate < DateTime.UtcNow)
+                .Select(r => r.Id)
+                .ToList();
+
+            return Ok(new
+            {
+                CustomerId = customer.Id,
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = user.FirstName + " " + user.LastName,
+                IsActive = isActive,
+                ActiveRentalIds = activeRentalIds,
+                PastRentalIds = pastRentalIds
+            });
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+            {
+                return NotFound(new { Errors = new[] { "Invalid email or password." } });
+            }
+            var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+            if (!passwordValid)
+            {
+                return NotFound(new { Errors = new[] { "Wrong password." } });
+            }
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = _tokens.CreateToken(user, roles);
+
+            return Ok(new AuthResponseDto(token));
+        }
 
         [HttpPost("register-customer")]
         public async Task<IActionResult> RegisterCustomer(RegisterDto dto)
@@ -77,7 +189,6 @@ namespace TooliRent.WebAPI.Controllers
             });
         }
 
-
         [HttpPost("register-user")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterDto dto)
         {
@@ -106,7 +217,6 @@ namespace TooliRent.WebAPI.Controllers
 
             return StatusCode(201);
         }
-
 
         [HttpPost("create-admin")]
         [Authorize(Roles = "Admin")]
@@ -139,59 +249,6 @@ namespace TooliRent.WebAPI.Controllers
 
             return StatusCode(201);
         }
-
-
-        [HttpGet("all-users")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            // Hämta alla kunder som en lookup dictionary (UserId -> CustomerId)
-            var customerLookup = _context.Customers
-                .AsNoTracking()
-                .ToDictionary(c => c.UserId, c => c.Id);
-
-            // Hämta alla användare
-            var users = _userManager.Users.ToList();
-
-            // Skapa DTOs
-            var result = new List<UserWithRolesDto>();
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                customerLookup.TryGetValue(user.Id, out var customerId);
-
-                result.Add(new UserWithRolesDto(
-                    user.Id,
-                    user.Email ?? "",
-                    user.FirstName + " " + user.LastName,
-                    roles,
-                    customerId
-                ));
-            }
-
-            return Ok(result);
-        }
-
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
-        {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null)
-            {
-                return NotFound(new { Errors = new[] { "Invalid email or password." } });
-            }
-            var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
-            if (!passwordValid)
-            {
-                return NotFound(new { Errors = new[] { "Wrong password." } });
-            }
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = _tokens.CreateToken(user, roles);
-
-            return Ok(new AuthResponseDto(token));
-        }
-
 
         [HttpPatch("update-role/{userId}")]
         [Authorize(Roles = "Admin")]
@@ -229,5 +286,48 @@ namespace TooliRent.WebAPI.Controllers
             return Ok(new { UserId = user.Id, NewRole = dto.NewRole });
         }
 
+        [HttpPatch("toggle-active/{customerId:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ToggleUserActiveStatus(int customerId)
+        {
+            // Hämta customer utan att inkludera User
+            var customer = await _context.Customers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == customerId);
+
+            if (customer == null)
+                return NotFound(new { Errors = new[] { "Customer not found." } });
+
+            // Hämta AppUser separat via UserManager
+            var user = await _userManager.FindByIdAsync(customer.UserId);
+            if (user == null)
+                return NotFound(new { Errors = new[] { "Associated user not found." } });
+
+            // Växla status
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
+            {
+                // Aktivera användaren
+                user.LockoutEnd = DateTimeOffset.UtcNow;
+            }
+            else
+            {
+                // Inaktivera användaren (t.ex. 100 år framåt)
+                user.LockoutEnabled = true;
+                user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
+            }
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return BadRequest(new { Errors = updateResult.Errors.Select(e => e.Description) });
+            }
+
+            return Ok(new
+            {
+                CustomerId = customer.Id,
+                UserId = user.Id,
+                IsActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow)
+            });
+        }
     }
 }

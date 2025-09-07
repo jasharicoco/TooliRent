@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TooliRent.Infrastructure.Migrations.AppUserDb
 {
     /// <inheritdoc />
-    public partial class InitialIdentity : Migration
+    public partial class InitAuthDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

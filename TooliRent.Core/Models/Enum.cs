@@ -10,10 +10,12 @@
 
     public enum RentalStatus
     {
-        Active,
-        Completed,
-        Cancelled,
-        Overdue
+        Pending,    // bokad men inte betald
+        Confirmed,  // betald
+        PickedUp,   // kunden har hämtat verktyget
+        Returned,   // verktyget är återlämnat
+        Cancelled,  // avbokad
+        Overdue     // inte återlämnad i tid
     }
 
     public enum PaymentMethod

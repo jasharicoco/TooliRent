@@ -1,6 +1,15 @@
-﻿namespace TooliRent.Services.Validators
+﻿using FluentValidation;
+using TooliRent.Services.DTOs;
+
+namespace TooliRent.Services.Validation
 {
-    internal class PaymentValidator
+    public class CreatePaymentDtoValidator : AbstractValidator<CreatePaymentDto>
     {
+        public CreatePaymentDtoValidator()
+        {
+            RuleFor(x => x.RentalId).GreaterThan(0);
+            RuleFor(x => x.Amount).GreaterThan(0);
+            RuleFor(x => x.Method).NotEmpty();
+        }
     }
 }

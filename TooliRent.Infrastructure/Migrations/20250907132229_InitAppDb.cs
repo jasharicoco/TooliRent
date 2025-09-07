@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace TooliRent.Infrastructure.Migrations.AppDb
+namespace TooliRent.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitAppDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -110,8 +110,8 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
                 },
                 constraints: table =>
                 {
@@ -139,7 +139,7 @@ namespace TooliRent.Infrastructure.Migrations.AppDb
                     RentalId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>

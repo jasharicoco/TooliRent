@@ -25,23 +25,43 @@ namespace TooliRent.Services.Services
             return _mapper.Map<IEnumerable<RentalDto>>(rentals);
         }
 
-        public async Task<IEnumerable<ToolDto>> GetFilteredAsync(int? categoryId, string? condition, bool? availableOnly)
+        public async Task<IEnumerable<ToolDto>> GetFilteredAsync(
+            int? categoryId,
+            string? condition,
+            bool? availableOnly,
+            DateTime? availableFrom,
+            DateTime? availableTo)
         {
             var tools = await _toolRepository.GetAllWithCategoryAndRentalsAsync();
 
             if (categoryId.HasValue)
                 tools = tools.Where(t => t.ToolCategoryId == categoryId.Value);
 
-            if (!string.IsNullOrEmpty(condition) && Enum.TryParse<ToolCondition>(condition, true, out var parsedCondition))
+            if (!string.IsNullOrEmpty(condition) &&
+                Enum.TryParse<ToolCondition>(condition, true, out var parsedCondition))
+            {
                 tools = tools.Where(t => t.Condition == parsedCondition);
+            }
 
-            if (availableOnly == true)
+            if (availableFrom.HasValue && availableTo.HasValue)
+            {
+                var from = availableFrom.Value.Date;
+                var to = availableTo.Value.Date;
+
+                tools = tools.Where(t =>
+                    !t.Rentals.Any(r =>
+                        r.Status == RentalStatus.Confirmed || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Pending || r.Status == RentalStatus.Overdue ||
+                        (r.StartDate.Date <= to && r.EndDate.Date >= from)
+                    ));
+            }
+            else if (availableOnly == true)
             {
                 tools = tools.Where(t =>
-                    !t.Rentals.Any(r => r.EndDate == null || r.EndDate > DateTime.UtcNow));
+                    !t.Rentals.Any(r => r.Status == RentalStatus.Confirmed || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Pending || r.Status == RentalStatus.Overdue));
             }
 
             return _mapper.Map<IEnumerable<ToolDto>>(tools);
         }
+
     }
 }

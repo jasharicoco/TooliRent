@@ -20,11 +20,14 @@ namespace TooliRent.WebAPI.Controllers
         public async Task<IActionResult> GetAll(
             [FromQuery] int? categoryId,
             [FromQuery] string? condition,
-            [FromQuery] bool? availableOnly)
+            [FromQuery] bool? availableOnly,
+            [FromQuery] DateTime? availableFrom,
+            [FromQuery] DateTime? availableTo)
         {
-            var tools = await _service.GetFilteredAsync(categoryId, condition, availableOnly);
+            var tools = await _service.GetFilteredAsync(categoryId, condition, availableOnly, availableFrom, availableTo);
             return Ok(tools);
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)

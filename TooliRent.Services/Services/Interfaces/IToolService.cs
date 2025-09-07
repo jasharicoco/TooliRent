@@ -7,6 +7,11 @@ namespace TooliRent.Services.Services.Interfaces
         : IGenericService<Tool, ToolDto, CreateToolDto, UpdateToolDto>
     {
         Task<IEnumerable<RentalDto>> GetRentalsForTool(int toolId);
-        Task<IEnumerable<ToolDto>> GetFilteredAsync(int? categoryId, string? condition, bool? availableOnly);
+        Task<IEnumerable<ToolDto>> GetFilteredAsync(
+            int? categoryId,
+            string? condition,
+            bool? availableOnly,
+            DateTime? availableFrom,
+            DateTime? availableTo);
     }
 }

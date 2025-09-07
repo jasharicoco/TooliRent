@@ -12,8 +12,8 @@ using TooliRent.Infrastructure.Data;
 namespace TooliRent.Infrastructure.Migrations.AppUserDb
 {
     [DbContext(typeof(AppUserDbContext))]
-    [Migration("20250905230550_InitialIdentity")]
-    partial class InitialIdentity
+    [Migration("20250907132310_InitAuthDb")]
+    partial class InitAuthDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

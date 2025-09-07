@@ -7,5 +7,6 @@ namespace TooliRent.Services.Services.Interfaces
         : IGenericService<Rental, RentalDto, CreateRentalDto, UpdateRentalDto>
     {
         Task<RentalDto> CreateBookingAsync(CreateRentalDto dto);
+        Task<RentalDto?> UpdateStatusAsync(int id, RentalStatus status);
     }
 }

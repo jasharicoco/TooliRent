@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Services.DTOs;
 using TooliRent.Services.Services.Interfaces;
+using TooliRent.Core.Models;
 
 namespace TooliRent.WebAPI.Controllers
 {
@@ -16,11 +17,13 @@ namespace TooliRent.WebAPI.Controllers
             _service = service;
         }
 
+        // GET: alla Rentals (Admin)
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
             => Ok(await _service.GetAllAsync());
 
+        // GET: en Rental
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -28,16 +31,16 @@ namespace TooliRent.WebAPI.Controllers
             return dto is null ? NotFound() : Ok(dto);
         }
 
-        // 📌 Bokning: skapa ny rental (autentiserad user; just nu via CustomerId i DTO)
+        // POST: skapa ny Rental (bokning)
         [HttpPost]
-        [Authorize] // eller tillåt anonymt & koppla efter login-flöde
+        [Authorize] // autentiserad användare
         public async Task<IActionResult> Create([FromBody] CreateRentalDto dto)
         {
             var created = await _service.CreateBookingAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        // Uppdatera (t.ex. ändra slutdatum eller status)
+        // PUT: uppdatera t.ex. slutdatum
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateRentalDto dto)
@@ -46,7 +49,23 @@ namespace TooliRent.WebAPI.Controllers
             return updated is null ? NotFound() : Ok(updated);
         }
 
-        // Ta bort (admin)
+        // PATCH: uppdatera endast status
+        [HttpPatch("{id:int}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateRentalStatusDto dto)
+        {
+            try
+            {
+                var updated = await _service.UpdateStatusAsync(id, dto.Status);
+                return updated is null ? NotFound() : Ok(updated);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // DELETE: ta bort Rental
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)

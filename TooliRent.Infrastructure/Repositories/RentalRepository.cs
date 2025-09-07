@@ -19,7 +19,7 @@ namespace TooliRent.Infrastructure.Repositories
             return await _context.Rentals
                 .Include(r => r.Tool)                          // Verktyget
                 .Include(r => r.Customer)                      // Kunden
-                    .ThenInclude(c => c.User)                 // Identity / AppUser
+                    .ThenInclude(c => c.User)                  // Identity / AppUser
                 .Include(r => r.Payments)                      // Betalningar
                 .Include(r => r.Review)                        // Recension
                 .FirstOrDefaultAsync(r => r.Id == id);

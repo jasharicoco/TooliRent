@@ -1,4 +1,6 @@
-﻿namespace TooliRent.Services.DTOs
+﻿using TooliRent.Core.Models;
+
+namespace TooliRent.Services.DTOs
 {
     public record RentalDto
     {
@@ -17,5 +19,7 @@
 
     public record CreateRentalDto(int CustomerId, int ToolId, DateTime StartDate, DateTime EndDate);
 
-    public record UpdateRentalDto(DateTime? EndDate, string? Status);
+    public record UpdateRentalDto(DateTime? EndDate);
+
+    public record UpdateRentalStatusDto(RentalStatus Status);
 }
