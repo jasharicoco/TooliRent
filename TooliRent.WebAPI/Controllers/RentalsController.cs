@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using TooliRent.Core.Models;
 using TooliRent.Services.DTOs;
 using TooliRent.Services.Services.Interfaces;
-using TooliRent.Core.Models;
 
 namespace TooliRent.WebAPI.Controllers
 {
@@ -17,11 +18,32 @@ namespace TooliRent.WebAPI.Controllers
             _service = service;
         }
 
-        // GET: alla Rentals (Admin)
+        // GET: alla Rentals (Admin) eller filtrerat per användare/kund
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAll()
-            => Ok(await _service.GetAllAsync());
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? userId = null,
+            [FromQuery] int? customerId = null)
+        {
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Filtrera på GUID UserId (Identity)
+                var bookingsByUser = await _service.GetByUserIdAsync(userId);
+                return Ok(bookingsByUser);
+            }
+
+            if (customerId.HasValue)
+            {
+                // Filtrera på CustomerId (int)
+                var bookingsByCustomer = await _service.GetByCustomerIdAsync(customerId.Value);
+                return Ok(bookingsByCustomer);
+            }
+
+            // Alla bokningar
+            var allBookings = await _service.GetAllAsync();
+            return Ok(allBookings);
+        }
+
 
         // GET: en Rental
         [HttpGet("{id:int}")]
@@ -64,6 +86,34 @@ namespace TooliRent.WebAPI.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        // GET: alla Rentals för den inloggade användaren
+        [HttpGet("my-bookings")]
+        [Authorize]
+        public async Task<IActionResult> GetMyBookings()
+        {
+            // Hämta userId som string från JWT-tokenen
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Unauthorized();
+
+            var bookings = await _service.GetByUserIdAsync(userId);
+            return Ok(bookings);
+        }
+
+        // DELETE: avboka en egen Rental
+        [HttpDelete("my-bookings/{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> CancelMyBooking(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var success = await _service.CancelBookingByUserAsync(userId, id);
+            return success ? NoContent() : Forbid();
+        }
+
 
         // DELETE: ta bort Rental
         [HttpDelete("{id:int}")]

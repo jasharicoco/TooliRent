@@ -9,11 +9,11 @@ using TooliRent.Infrastructure.Data;
 
 #nullable disable
 
-namespace TooliRent.Infrastructure.Migrations
+namespace TooliRent.Infrastructure.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250907132229_InitAppDb")]
-    partial class InitAppDb
+    [Migration("20250909184426_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

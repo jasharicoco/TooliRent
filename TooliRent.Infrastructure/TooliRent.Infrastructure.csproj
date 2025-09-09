@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\AppDb\**" />
+    <EmbeddedResource Remove="Migrations\AppDb\**" />
+    <None Remove="Migrations\AppDb\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
@@ -25,8 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\AppDb\" />
-    <Folder Include="Migrations\AppUserDb\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

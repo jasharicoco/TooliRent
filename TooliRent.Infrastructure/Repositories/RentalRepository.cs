@@ -46,5 +46,34 @@ namespace TooliRent.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Rental>> GetByUserIdAsync(string userId)
+        {
+            return await _context.Rentals
+                .Include(r => r.Tool)
+                .Include(r => r.Customer)
+                    .ThenInclude(c => c.User)
+                .Where(r => r.Customer != null && r.Customer.User.Id == userId)
+                .ToListAsync();
+        }
+
+        public async Task<bool> DeleteAsync(Rental rental)
+        {
+            if (rental == null) return false;
+            _context.Rentals.Remove(rental);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<Rental>> GetByCustomerIdAsync(int customerId)
+        {
+            return await _context.Rentals
+                .Include(r => r.Tool)
+                .Include(r => r.Customer)
+                    .ThenInclude(c => c.User)
+                .Where(r => r.CustomerId == customerId)
+                .ToListAsync();
+        }
+
+
     }
 }

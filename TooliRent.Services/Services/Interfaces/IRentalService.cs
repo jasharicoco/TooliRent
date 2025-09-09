@@ -8,5 +8,9 @@ namespace TooliRent.Services.Services.Interfaces
     {
         Task<RentalDto> CreateBookingAsync(CreateRentalDto dto);
         Task<RentalDto?> UpdateStatusAsync(int id, RentalStatus status);
+        Task<IEnumerable<RentalDto>> GetByUserIdAsync(string userId);
+        Task<bool> CancelBookingByUserAsync(string userId, int bookingId);
+        Task<IEnumerable<RentalDto>> GetByCustomerIdAsync(int customerId);
+
     }
 }

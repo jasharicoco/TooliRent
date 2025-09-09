@@ -8,7 +8,7 @@ using TooliRent.Infrastructure.Data;
 
 #nullable disable
 
-namespace TooliRent.Infrastructure.Migrations
+namespace TooliRent.Infrastructure.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot

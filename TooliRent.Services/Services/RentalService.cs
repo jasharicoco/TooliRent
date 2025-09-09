@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using TooliRent.Core.Models;
 using TooliRent.Infrastructure.Repositories.Interfaces;
 using TooliRent.Services.DTOs;
@@ -146,5 +147,29 @@ namespace TooliRent.Services.Services
             var updated = await _rentalRepo.GetDetailedByIdAsync(id);
             return _mapper.Map<RentalDto>(updated);
         }
+
+        public async Task<IEnumerable<RentalDto>> GetByUserIdAsync(string userId)
+        {
+            var rentals = await _rentalRepo.GetByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<RentalDto>>(rentals);
+        }
+
+        public async Task<bool> CancelBookingByUserAsync(string userId, int bookingId)
+        {
+            var rental = await _rentalRepo.GetDetailedByIdAsync(bookingId);
+            if (rental == null) return false;
+
+            // Kontrollera att bokningen tillhör användaren
+            if (rental.Customer?.User?.Id != userId) return false;
+
+            return await _rentalRepo.DeleteAsync(rental);
+        }
+
+        public async Task<IEnumerable<RentalDto>> GetByCustomerIdAsync(int customerId)
+        {
+            var rentals = await _rentalRepo.GetByCustomerIdAsync(customerId);
+            return _mapper.Map<IEnumerable<RentalDto>>(rentals);
+        }
+
     }
 }
