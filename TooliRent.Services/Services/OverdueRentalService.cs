@@ -26,11 +26,14 @@ public class OverdueRentalService : BackgroundService
 
                 var now = DateTime.UtcNow;
 
-                // Hämta bokningar som har passerat slutdatum och inte redan är Overdue
                 var overdueBookings = await db.Rentals
                     .Include(r => r.Customer)
                         .ThenInclude(c => c.User)
-                    .Where(r => r.EndDate <= now && r.Status != RentalStatus.Overdue)
+                    .Include(r => r.Tool)
+                    .Where(r => r.EndDate <= now
+                                && r.Status != RentalStatus.Overdue
+                                && r.Status != RentalStatus.Returned
+                                && (r.Status == RentalStatus.Confirmed || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Pending))
                     .ToListAsync(stoppingToken);
 
                 foreach (var rental in overdueBookings)
@@ -42,8 +45,28 @@ public class OverdueRentalService : BackgroundService
                     var user = rental.Customer?.User;
                     if (user?.Email != null)
                     {
-                        var subject = "Din bokning har gått över tiden";
-                        var body = $"Hej {user.FirstName},\n\nDin bokning för {rental.ToolId} är nu markerad som försenad.";
+                        string subject = "Din bokning har gått över tiden";
+                        string body;
+
+                        if (rental.Status == RentalStatus.Confirmed)
+                        {
+                            body = $"Hej {user.FirstName},\n\n" +
+                                   $"Din bokning för verktyget '{rental.Tool?.Name}' skulle ha hämtats senast {rental.EndDate:u} " +
+                                   "men den har ännu inte hämtats. Bokningen är nu markerad som försenad.";
+                        }
+                        else if (rental.Status == RentalStatus.Pending)
+                        {
+                            body = $"Hej {user.FirstName},\n\n" +
+                                   $"Din bokning för verktyget '{rental.Tool?.Name}' har inte betalats i tid." +
+                                   "Bokningen är nu markerad som försenad.";
+                        }
+                        else // PickedUp
+                        {
+                            body = $"Hej {user.FirstName},\n\n" +
+                                   $"Din bokning för verktyget '{rental.Tool?.Name}' skulle ha återlämnats senast {rental.EndDate:u} " +
+                                   "men den har ännu inte återlämnats. Bokningen är nu markerad som försenad.";
+                        }
+
                         await emailService.SendEmailAsync(user.Email, subject, body);
                         Console.WriteLine($"Skickade mail till {user.Email}");
                     }
@@ -57,7 +80,7 @@ public class OverdueRentalService : BackgroundService
                 Console.WriteLine($"Fel i OverdueRentalService: {ex.Message}");
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // kör var 30:e sekund
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
         }
     }
 }

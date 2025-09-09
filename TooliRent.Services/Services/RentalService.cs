@@ -90,7 +90,7 @@ namespace TooliRent.Services.Services
             var rental = _mapper.Map<Rental>(dto);
             rental.CustomerId = customer.Id;
             rental.TotalPrice = totalPrice;
-            rental.Status = RentalStatus.Confirmed;
+            rental.Status = RentalStatus.Pending;
             rental.CreatedAt = DateTime.UtcNow;
             rental.ModifiedAt = DateTime.UtcNow;
 
