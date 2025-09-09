@@ -21,8 +21,12 @@ namespace TooliRent.Infrastructure.Repositories
         {
             return await _context.Rentals
                 .Where(r => r.ToolId == toolId)
+                .Include(r => r.Tool)
+                .Include(r => r.Customer)
+                    .ThenInclude(c => c.User)
                 .ToListAsync();
         }
+
 
         public override async Task<IEnumerable<Tool>> GetAllAsync()
         {

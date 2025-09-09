@@ -1,6 +1,5 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -111,6 +110,11 @@ namespace TooliRent
             // -------------------------------
             // AutoMapper
             // -------------------------------
+            builder.Services.AddAutoMapper(typeof(CustomerProfile));
+            builder.Services.AddAutoMapper(typeof(PaymentProfile));
+            builder.Services.AddAutoMapper(typeof(RentalProfile));
+            builder.Services.AddAutoMapper(typeof(ReviewProfile));
+            builder.Services.AddAutoMapper(typeof(ToolCategoryProfile));
             builder.Services.AddAutoMapper(typeof(ToolProfile));
 
             // -------------------------------
