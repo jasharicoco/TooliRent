@@ -134,6 +134,9 @@ namespace TooliRent
             builder.Services.AddScoped<IRentalRepository, RentalRepository>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
+            builder.Services.AddHostedService<OverdueRentalService>();
+            builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+
             // JSON String Enum Converter
             builder.Services.AddControllers()
                 .AddJsonOptions(opt =>
