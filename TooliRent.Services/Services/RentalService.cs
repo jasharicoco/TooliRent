@@ -120,19 +120,19 @@ namespace TooliRent.Services.Services
             var rental = await _rentalRepo.GetDetailedByIdAsync(id);
             if (rental is null) return null;
 
-            //// Kontrollera logiskt statusflöde
-            //switch (status)
-            //{
-            //    case RentalStatus.PickedUp:
-            //        if (rental.Status != RentalStatus.Confirmed)
-            //            throw new InvalidOperationException("Rental must be Confirmed before being PickedUp.");
-            //        break;
+            // Kontrollera logiskt statusflöde
+            switch (status)
+            {
+                case RentalStatus.PickedUp:
+                    if (rental.Status != RentalStatus.Confirmed)
+                        throw new InvalidOperationException("Rental must be Confirmed before being PickedUp.");
+                    break;
 
-            //    case RentalStatus.Returned:
-            //        if (rental.Status != RentalStatus.PickedUp)
-            //            throw new InvalidOperationException("Rental must be PickedUp before being Returned.");
-            //        break;
-            //}
+                case RentalStatus.Returned:
+                    if (rental.Status != RentalStatus.PickedUp)
+                        throw new InvalidOperationException("Rental must be PickedUp before being Returned.");
+                    break;
+            }
 
             rental.Status = status;
             rental.ModifiedAt = DateTime.UtcNow;
@@ -157,8 +157,23 @@ namespace TooliRent.Services.Services
             // Kontrollera att bokningen tillhör användaren
             if (rental.Customer?.User?.Id != userId) return false;
 
-            return await _rentalRepo.DeleteAsync(rental);
+            // Kontrollera om bokningen redan är avbokad
+            if (rental.Status == RentalStatus.Cancelled)
+                return false;
+
+            // Valfritt: kontrollera om bokningen redan är pågående eller avslutad
+            if (rental.Status == RentalStatus.Returned || rental.Status == RentalStatus.Overdue)
+                return false;
+
+            // Ändra status till "Cancelled"
+            rental.Status = RentalStatus.Cancelled;
+
+            // Uppdatera i databasen
+            await _rentalRepo.UpdateAsync(rental);
+
+            return true;
         }
+
 
         public async Task<IEnumerable<RentalDto>> GetByCustomerIdAsync(int customerId)
         {

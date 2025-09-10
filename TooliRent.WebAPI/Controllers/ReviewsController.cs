@@ -52,18 +52,18 @@ namespace TooliRent.WebAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = review.Id }, review);
         }
 
-
-        [HttpPut("{id:int}")]
-        [Authorize]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateReviewDto dto)
-        {
-            var updated = await _service.UpdateAsync(id, dto);
-            if (updated is null) return NotFound();
-            return Ok(updated);
-        }
+        // Uppdatering av recensioner är inte tillåtet i nuläget
+        //[HttpPut("{id:int}")]
+        //[Authorize]
+        //public async Task<IActionResult> Update(int id, [FromBody] UpdateReviewDto dto)
+        //{
+        //    var updated = await _service.UpdateAsync(id, dto);
+        //    if (updated is null) return NotFound();
+        //    return Ok(updated);
+        //}
 
         [HttpDelete("{id:int}")]
-        [Authorize]
+        [Authorize] // Admin så småningom
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _service.DeleteAsync(id);
