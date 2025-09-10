@@ -11,6 +11,6 @@ namespace TooliRent.Services.Services.Interfaces
         Task<IEnumerable<RentalDto>> GetByUserIdAsync(string userId);
         Task<bool> CancelBookingByUserAsync(string userId, int bookingId);
         Task<IEnumerable<RentalDto>> GetByCustomerIdAsync(int customerId);
-
+        Task<RentalStatisticsDto> GetStatisticsAsync();
     }
 }

@@ -123,5 +123,14 @@ namespace TooliRent.WebAPI.Controllers
             var ok = await _service.DeleteAsync(id);
             return ok ? NoContent() : NotFound();
         }
+
+        // GET: statistik över uthyrningar
+        [HttpGet("statistics")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetStatistics()
+        {
+            var stats = await _service.GetStatisticsAsync();
+            return Ok(stats);
+        }
     }
 }

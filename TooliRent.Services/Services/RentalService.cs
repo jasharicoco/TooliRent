@@ -171,5 +171,24 @@ namespace TooliRent.Services.Services
             return _mapper.Map<IEnumerable<RentalDto>>(rentals);
         }
 
+        public async Task<RentalStatisticsDto> GetStatisticsAsync()
+        {
+            var totalRentals = await _rentalRepo.CountAsync();
+            var activeRentals = await _rentalRepo.CountByStatusAsync(RentalStatus.PickedUp)
+                                + await _rentalRepo.CountByStatusAsync(RentalStatus.Confirmed);
+            var overdueRentals = await _rentalRepo.CountByStatusAsync(RentalStatus.Overdue);
+            var returnedRentals = await _rentalRepo.CountByStatusAsync(RentalStatus.Returned);
+            var mostPopularTool = await _rentalRepo.GetMostPopularToolAsync();
+            var avgDays = await _rentalRepo.GetAverageRentalDaysAsync();
+
+            return new RentalStatisticsDto(
+                totalRentals,
+                activeRentals,
+                overdueRentals,
+                returnedRentals,
+                mostPopularTool ?? "Ingen data",
+                Math.Round(avgDays, 1)
+            );
+        }
     }
 }

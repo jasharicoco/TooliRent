@@ -10,6 +10,10 @@ namespace TooliRent.Infrastructure.Repositories.Interfaces
         Task<IEnumerable<Rental>> GetByUserIdAsync(string userId);
         Task<bool> DeleteAsync(Rental rental);
         Task<IEnumerable<Rental>> GetByCustomerIdAsync(int customerId);
+        Task<int> CountAsync();
+        Task<int> CountByStatusAsync(RentalStatus status);
+        Task<string?> GetMostPopularToolAsync();
+        Task<double> GetAverageRentalDaysAsync();
 
     }
 }

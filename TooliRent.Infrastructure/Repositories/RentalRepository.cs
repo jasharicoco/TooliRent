@@ -19,7 +19,7 @@ namespace TooliRent.Infrastructure.Repositories
             return await _context.Rentals
                 .Include(r => r.Tool)                          // Verktyget
                 .Include(r => r.Customer)                      // Kunden
-                    .ThenInclude(c => c.User)                  // Identity / AppUser
+                    .ThenInclude(c => c.User)                 // Identity / AppUser
                 .Include(r => r.Payments)                      // Betalningar
                 .Include(r => r.Review)                        // Recension
                 .FirstOrDefaultAsync(r => r.Id == id);
@@ -74,6 +74,27 @@ namespace TooliRent.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> CountAsync()
+            => await _context.Rentals.CountAsync();
+
+        public async Task<int> CountByStatusAsync(RentalStatus status)
+            => await _context.Rentals.CountAsync(r => r.Status == status);
+
+        public async Task<string?> GetMostPopularToolAsync()
+        {
+            return await _context.Rentals
+                .GroupBy(r => r.Tool.Name)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<double> GetAverageRentalDaysAsync()
+        {
+            return await _context.Rentals
+                .Select(r => EF.Functions.DateDiffDay(r.StartDate, r.EndDate))
+                .AverageAsync();
+        }
 
     }
 }
