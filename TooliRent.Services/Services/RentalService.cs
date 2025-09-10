@@ -29,7 +29,7 @@ namespace TooliRent.Services.Services
             _mapper = mapper;
         }
 
-        // ---------- Generiska CRUD ----------
+        //Generiska CRUD
 
         public async Task<IEnumerable<RentalDto>> GetAllAsync()
         {
@@ -70,7 +70,7 @@ namespace TooliRent.Services.Services
             return true;
         }
 
-        // ---------- Bokning (skapa rental) ----------
+        // Bokning (skapa rental)
         public async Task<RentalDto> CreateBookingAsync(CreateRentalDto dto)
         {
             var customer = await _customerRepo.GetByIdAsync(dto.CustomerId)
@@ -114,7 +114,7 @@ namespace TooliRent.Services.Services
 
         }
 
-        // ---------- Status-uppdatering ----------
+        // Status-uppdatering
         public async Task<RentalDto?> UpdateStatusAsync(int id, RentalStatus status)
         {
             var rental = await _rentalRepo.GetDetailedByIdAsync(id);
@@ -131,11 +131,6 @@ namespace TooliRent.Services.Services
                 case RentalStatus.Returned:
                     if (rental.Status != RentalStatus.PickedUp)
                         throw new InvalidOperationException("Rental must be PickedUp before being Returned.");
-                    break;
-
-                case RentalStatus.Overdue:
-                    if (rental.Status != RentalStatus.PickedUp)
-                        throw new InvalidOperationException("Rental must be PickedUp to become Overdue.");
                     break;
             }
 

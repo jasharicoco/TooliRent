@@ -12,6 +12,5 @@
     IEnumerable<string> Roles,
     bool IsActive,
     IEnumerable<int> ActiveRentalIds,
-    IEnumerable<int> PastRentalIds
-);
+    IEnumerable<int> PastRentalIds);
 }

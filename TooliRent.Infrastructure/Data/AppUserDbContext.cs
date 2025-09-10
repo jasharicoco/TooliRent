@@ -16,14 +16,14 @@ namespace TooliRent.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
-            // --- Roller ---
+            // Roller
             builder.Entity<IdentityRole>().HasData(
                 new IdentityRole { Id = "1", Name = "Admin", NormalizedName = "ADMIN" },
                 new IdentityRole { Id = "2", Name = "User", NormalizedName = "USER" },
                 new IdentityRole { Id = "3", Name = "Customer", NormalizedName = "CUSTOMER" }
             );
 
-            // --- Användare ---
+            // Användare
             builder.Entity<AppUser>().HasData(
                 new AppUser
                 {
@@ -72,7 +72,7 @@ namespace TooliRent.Infrastructure.Data
                 }
             );
 
-            // --- Koppla roller ---
+            // Koppla användare till roller
             builder.Entity<IdentityUserRole<string>>().HasData(
                 new IdentityUserRole<string> { UserId = "a1", RoleId = "1" },
                 new IdentityUserRole<string> { UserId = "u1", RoleId = "2" },

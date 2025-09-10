@@ -24,10 +24,21 @@ namespace TooliRent
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // -------------------------------
+            // Controllers & JSON Options
+            // -------------------------------
+            builder.Services.AddControllers()
+                .AddJsonOptions(opt =>
+                {
+                    // Serialisera enums som strängar
+                    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
-            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+
+            // -------------------------------
+            // Swagger / OpenAPI
+            // -------------------------------
             builder.Services.AddSwaggerGen(o =>
             {
                 o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -39,6 +50,7 @@ namespace TooliRent
                     In = ParameterLocation.Header,
                     Description = "JWT Authorization header using the Bearer scheme."
                 });
+
                 o.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -56,7 +68,7 @@ namespace TooliRent
             });
 
             // -------------------------------
-            // DbContext
+            // DbContexts
             // -------------------------------
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -65,57 +77,51 @@ namespace TooliRent
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // -------------------------------
-            // Microsoft Identity
+            // Identity
             // -------------------------------
-            builder.Services.AddIdentityCore<AppUser>(o =>
+            builder.Services.AddIdentityCore<AppUser>(options =>
             {
-                o.User.RequireUniqueEmail = true;
-                o.Password.RequiredLength = 8;
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
             })
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<AppUserDbContext>()
-                .AddDefaultTokenProviders();
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<AppUserDbContext>()
+            .AddDefaultTokenProviders();
 
             // -------------------------------
-            // JWT
+            // JWT Authentication
             // -------------------------------
-            var jwt = builder.Configuration.GetSection("Jwt");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+            var jwtConfig = builder.Configuration.GetSection("Jwt");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Key"]!));
 
-            builder.Services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(o =>
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
                 {
-                    o.TokenValidationParameters = new TokenValidationParameters
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwt["Issuer"],
-                        ValidAudience = jwt["Audience"],
+                        ValidIssuer = jwtConfig["Issuer"],
+                        ValidAudience = jwtConfig["Audience"],
                         IssuerSigningKey = key,
-                        ClockSkew = TimeSpan.FromMinutes(1) // Tidsskillnad mellan klient och server
+                        ClockSkew = TimeSpan.FromMinutes(1) // För att hantera liten tidsskillnad
                     };
                 });
 
             builder.Services.AddAuthorization();
 
             // -------------------------------
-            // Fluent Validation
+            // FluentValidation
             // -------------------------------
             builder.Services.AddValidatorsFromAssemblyContaining<ReviewValidator>();
-            //builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+            // builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
             // -------------------------------
-            // AutoMapper
+            // AutoMapper (registrerar alla profiler i mapping-assemblyn)
             // -------------------------------
-            builder.Services.AddAutoMapper(typeof(CustomerProfile));
-            builder.Services.AddAutoMapper(typeof(PaymentProfile));
-            builder.Services.AddAutoMapper(typeof(RentalProfile));
-            builder.Services.AddAutoMapper(typeof(ReviewProfile));
-            builder.Services.AddAutoMapper(typeof(ToolCategoryProfile));
-            builder.Services.AddAutoMapper(typeof(ToolProfile));
+            builder.Services.AddAutoMapper(typeof(CustomerProfile).Assembly);
 
             // -------------------------------
             // Repositories & Services
@@ -137,16 +143,14 @@ namespace TooliRent
             builder.Services.AddHostedService<OverdueRentalService>();
             builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
-            // JSON String Enum Converter
-            builder.Services.AddControllers()
-                .AddJsonOptions(opt =>
-                {
-                    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                });
-
+            // -------------------------------
+            // Build App
+            // -------------------------------
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // -------------------------------
+            // Middleware Pipeline
+            // -------------------------------
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -155,8 +159,8 @@ namespace TooliRent
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 

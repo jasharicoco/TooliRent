@@ -95,6 +95,5 @@ namespace TooliRent.Infrastructure.Repositories
                 .Select(r => EF.Functions.DateDiffDay(r.StartDate, r.EndDate))
                 .AverageAsync();
         }
-
     }
 }

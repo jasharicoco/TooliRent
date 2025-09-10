@@ -1,14 +1,13 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
 using TooliRent.Services.Services.Interfaces;
 
 public class SmtpEmailService : IEmailService
 {
-    private readonly string _smtpHost = "smtp.gmail.com";
-    private readonly int _smtpPort = 587;
-    private readonly string _smtpUser = "kallblodstravarnaresort@gmail.com";
-    private readonly string _smtpPass = "udwdbnjtnofxoefo";
+    private readonly string _smtpHost;
+    private readonly int _smtpPort;
+    private readonly string _smtpUser;
+    private readonly string _smtpPass;
 
     public async Task SendEmailAsync(string to, string subject, string body)
     {

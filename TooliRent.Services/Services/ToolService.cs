@@ -62,6 +62,5 @@ namespace TooliRent.Services.Services
 
             return _mapper.Map<IEnumerable<ToolDto>>(tools);
         }
-
     }
 }

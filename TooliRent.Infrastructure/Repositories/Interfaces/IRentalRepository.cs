@@ -14,6 +14,5 @@ namespace TooliRent.Infrastructure.Repositories.Interfaces
         Task<int> CountByStatusAsync(RentalStatus status);
         Task<string?> GetMostPopularToolAsync();
         Task<double> GetAverageRentalDaysAsync();
-
     }
 }

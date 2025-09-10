@@ -54,5 +54,4 @@ namespace TooliRent.Services.Services
             return true;
         }
     }
-
 }
