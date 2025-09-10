@@ -12,7 +12,7 @@ using TooliRent.Infrastructure.Data;
 namespace TooliRent.Infrastructure.Migrations.AppUserDb
 {
     [DbContext(typeof(AppUserDbContext))]
-    [Migration("20250909184445_InitialIdentity")]
+    [Migration("20250910090958_InitialIdentity")]
     partial class InitialIdentity
     {
         /// <inheritdoc />
