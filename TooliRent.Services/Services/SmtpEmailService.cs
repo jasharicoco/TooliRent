@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Configuration;
+using System.Net;
 using System.Net.Mail;
 using TooliRent.Services.Services.Interfaces;
 
@@ -8,6 +9,15 @@ public class SmtpEmailService : IEmailService
     private readonly int _smtpPort;
     private readonly string _smtpUser;
     private readonly string _smtpPass;
+
+    public SmtpEmailService(IConfiguration configuration)
+    {
+        var emailSettings = configuration.GetSection("EmailSettings");
+        _smtpHost = emailSettings["SmtpHost"];
+        _smtpPort = int.Parse(emailSettings["SmtpPort"]);
+        _smtpUser = emailSettings["SmtpUser"];
+        _smtpPass = emailSettings["SmtpPass"];
+    }
 
     public async Task SendEmailAsync(string to, string subject, string body)
     {

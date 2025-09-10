@@ -116,6 +116,8 @@ namespace TooliRent
             // FluentValidation
             // -------------------------------
             builder.Services.AddValidatorsFromAssemblyContaining<ReviewValidator>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ReviewValidator>();
             // builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
             // -------------------------------
@@ -132,6 +134,7 @@ namespace TooliRent
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IRentalService, RentalService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IToolRepository, ToolRepository>();
@@ -139,6 +142,7 @@ namespace TooliRent
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<IRentalRepository, RentalRepository>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
             builder.Services.AddHostedService<OverdueRentalService>();
             builder.Services.AddScoped<IEmailService, SmtpEmailService>();

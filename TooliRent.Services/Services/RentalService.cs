@@ -120,19 +120,19 @@ namespace TooliRent.Services.Services
             var rental = await _rentalRepo.GetDetailedByIdAsync(id);
             if (rental is null) return null;
 
-            // Kontrollera logiskt statusflöde
-            switch (status)
-            {
-                case RentalStatus.PickedUp:
-                    if (rental.Status != RentalStatus.Confirmed)
-                        throw new InvalidOperationException("Rental must be Confirmed before being PickedUp.");
-                    break;
+            //// Kontrollera logiskt statusflöde
+            //switch (status)
+            //{
+            //    case RentalStatus.PickedUp:
+            //        if (rental.Status != RentalStatus.Confirmed)
+            //            throw new InvalidOperationException("Rental must be Confirmed before being PickedUp.");
+            //        break;
 
-                case RentalStatus.Returned:
-                    if (rental.Status != RentalStatus.PickedUp)
-                        throw new InvalidOperationException("Rental must be PickedUp before being Returned.");
-                    break;
-            }
+            //    case RentalStatus.Returned:
+            //        if (rental.Status != RentalStatus.PickedUp)
+            //            throw new InvalidOperationException("Rental must be PickedUp before being Returned.");
+            //        break;
+            //}
 
             rental.Status = status;
             rental.ModifiedAt = DateTime.UtcNow;

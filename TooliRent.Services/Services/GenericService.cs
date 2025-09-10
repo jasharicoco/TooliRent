@@ -29,7 +29,7 @@ namespace TooliRent.Services.Services
             return entity is null ? default : _mapper.Map<TDto>(entity);
         }
 
-        public async Task<TDto> CreateAsync(TCreateDto dto)
+        public virtual async Task<TDto> CreateAsync(TCreateDto dto)
         {
             var entity = _mapper.Map<TEntity>(dto);
             await _repository.AddAsync(entity);

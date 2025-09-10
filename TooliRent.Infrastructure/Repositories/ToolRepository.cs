@@ -14,6 +14,7 @@ namespace TooliRent.Infrastructure.Repositories
             return await _context.Tools
                 .Include(t => t.ToolCategory)
                 .Include(t => t.Rentals)
+                    .ThenInclude(r => r.Review)
                 .ToListAsync();
         }
 
@@ -40,6 +41,7 @@ namespace TooliRent.Infrastructure.Repositories
             return await _context.Tools
                 .Include(t => t.ToolCategory)
                 .Include(t => t.Rentals)
+                    .ThenInclude(r => r.Review)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
     }

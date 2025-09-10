@@ -33,7 +33,7 @@ public class OverdueRentalService : BackgroundService
                     .Where(r => r.EndDate <= now
                                 && r.Status != RentalStatus.Overdue
                                 && r.Status != RentalStatus.Returned
-                                && (r.Status == RentalStatus.Confirmed || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Pending))
+                                && (r.Status == RentalStatus.Pending || r.Status == RentalStatus.Confirmed || r.Status == RentalStatus.PickedUp))
                     .ToListAsync(stoppingToken);
 
                 foreach (var rental in overdueBookings)
