@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using TooliRent.Core.Models;
 using TooliRent.Infrastructure.Data;
 using TooliRent.WebAPI.Auth;
@@ -123,24 +124,53 @@ namespace TooliRent.WebAPI.Controllers
             });
         }
 
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        //{
+        //    var user = await _userManager.FindByEmailAsync(dto.Email);
+        //    if (user == null)
+        //    {
+        //        return NotFound(new { Errors = new[] { "Invalid email or password." } });
+        //    }
+        //    var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+        //    if (!passwordValid)
+        //    {
+        //        return NotFound(new { Errors = new[] { "Wrong password." } });
+        //    }
+        //    var roles = await _userManager.GetRolesAsync(user);
+        //    var token = _tokens.CreateToken(user, roles);
+
+        //    return Ok(new AuthResponseDto(token));
+        //}
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)
-            {
                 return NotFound(new { Errors = new[] { "Invalid email or password." } });
-            }
+
             var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
             if (!passwordValid)
-            {
                 return NotFound(new { Errors = new[] { "Wrong password." } });
-            }
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = _tokens.CreateToken(user, roles);
 
-            return Ok(new AuthResponseDto(token));
+            var roles = await _userManager.GetRolesAsync(user);
+            var accessToken = _tokens.CreateToken(user, roles);
+
+            var refreshToken = GenerateRefreshToken();
+
+            // Sätt refresh token i en HttpOnly-cookie
+            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // endast över HTTPS
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+            return Ok(new AuthResponseDto(accessToken));
         }
+
 
         [HttpPost("register-customer")]
         public async Task<IActionResult> RegisterCustomer(RegisterDto dto)
@@ -329,5 +359,34 @@ namespace TooliRent.WebAPI.Controllers
                 IsActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow)
             });
         }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+                return Unauthorized(new { Errors = new[] { "No refresh token provided." } });
+
+            // Här skulle vi annars kolla refreshToken i databasen.
+            // Nu litar vi bara på att cookien är giltig (gör det enkelt).
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized(new { Errors = new[] { "Invalid user." } });
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var newAccessToken = _tokens.CreateToken(user, roles);
+
+            return Ok(new AuthResponseDto(newAccessToken));
+        }
+
+
+        private string GenerateRefreshToken()
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
+
     }
 }
