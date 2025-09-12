@@ -12,8 +12,8 @@ namespace TooliRent.Core.Models
 
         [Precision(18, 2)]
         public decimal Price { get; set; }
-        public int ToolCategoryId { get; set; }
-        public ToolCategory ToolCategory { get; set; }
+        public int? ToolCategoryId { get; set; }
+        public ToolCategory? ToolCategory { get; set; }
         public List<Rental> Rentals { get; set; }
     }
 }

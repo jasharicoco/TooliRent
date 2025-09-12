@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using TooliRent.Core.Models;
 using TooliRent.Infrastructure.Repositories.Interfaces;
 using TooliRent.Services.DTOs;

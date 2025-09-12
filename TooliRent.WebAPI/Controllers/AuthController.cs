@@ -128,19 +128,30 @@ namespace TooliRent.WebAPI.Controllers
         //public async Task<IActionResult> Login([FromBody] LoginDto dto)
         //{
         //    var user = await _userManager.FindByEmailAsync(dto.Email);
-        //    if (user == null)
-        //    {
-        //        return NotFound(new { Errors = new[] { "Invalid email or password." } });
-        //    }
-        //    var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
-        //    if (!passwordValid)
-        //    {
-        //        return NotFound(new { Errors = new[] { "Wrong password." } });
-        //    }
-        //    var roles = await _userManager.GetRolesAsync(user);
-        //    var token = _tokens.CreateToken(user, roles);
+        //    if (user == null) return NotFound(new { Errors = new[] { "Invalid email or password." } });
 
-        //    return Ok(new AuthResponseDto(token));
+        //    var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+        //    if (!passwordValid) return NotFound(new { Errors = new[] { "Wrong password." } });
+
+        //    var roles = await _userManager.GetRolesAsync(user);
+        //    var customerId = await _context.Customers
+        //        .Where(c => c.UserId == user.Id)
+        //        .Select(c => c.Id)
+        //        .FirstOrDefaultAsync();
+
+        //    var accessToken = _tokens.CreateToken(user, roles);
+
+        //    // optional – keep cookie if you want refresh later
+        //    var refreshToken = GenerateRefreshToken();
+        //    Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+        //    {
+        //        HttpOnly = true,
+        //        Secure = true,
+        //        SameSite = SameSiteMode.Strict,
+        //        Expires = DateTime.UtcNow.AddDays(7)
+        //    });
+
+        //    return Ok(new { token = accessToken, refreshToken, customerId, roles });
         //}
 
         [HttpPost("login")]
@@ -387,6 +398,5 @@ namespace TooliRent.WebAPI.Controllers
             rng.GetBytes(randomBytes);
             return Convert.ToBase64String(randomBytes);
         }
-
     }
 }

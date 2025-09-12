@@ -7,8 +7,8 @@ namespace TooliRent.Core.Models
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
-        public int ToolId { get; set; }
-        public Tool Tool { get; set; }
+        public int? ToolId { get; set; }
+        public Tool? Tool { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 

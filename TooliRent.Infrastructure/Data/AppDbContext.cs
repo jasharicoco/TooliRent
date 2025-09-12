@@ -41,7 +41,7 @@ namespace TooliRent.Infrastructure.Data
                 .HasMany(tc => tc.Tools)
                 .WithOne(t => t.ToolCategory)
                 .HasForeignKey(t => t.ToolCategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Entity<Tool>()
                 .HasMany(t => t.Rentals)
