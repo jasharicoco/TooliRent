@@ -41,21 +41,26 @@ namespace TooliRent.Services.Services
             return _mapper.Map<PaymentDto>(entity);
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var existing = await _paymentRepo.GetByIdAsync(id);
+            if (existing is null) return false;
+
+            await _paymentRepo.DeleteAsync(id);
+            return true;
+        }
+
         public async Task<PaymentDto?> UpdateAsync(int id, UpdatePaymentDto dto)
         {
-            var entity = await _paymentRepo.GetDetailedByIdAsync(id);
+            var entity = await _paymentRepo.GetByIdAsync(id);
             if (entity is null) return null;
 
-            // Uppdatera method om den finns
-            if (dto.Method.HasValue)
-                entity.PaymentMethod = dto.Method.Value;
+            _mapper.Map(dto, entity);
 
-            // Uppdatera status om den finns
-            if (dto.Status.HasValue)
+            // Om Status sätts till Paid → sätt datum + uppdatera Rental
+            if (dto.Status is not null && Enum.TryParse<PaymentStatus>(dto.Status, out var status))
             {
-                entity.Status = dto.Status.Value;
-
-                if (dto.Status.Value == PaymentStatus.Completed)
+                if (status == PaymentStatus.Completed)
                 {
                     entity.PaymentDate = DateTime.UtcNow;
 
@@ -73,77 +78,40 @@ namespace TooliRent.Services.Services
             return _mapper.Map<PaymentDto>(entity);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        // Extra metod för att bara uppdatera status
+        public async Task<PaymentDto?> UpdateStatusAsync(int id, PaymentStatus status)
         {
-            var existing = await _paymentRepo.GetByIdAsync(id);
-            if (existing is null) return false;
+            var entity = await _paymentRepo.GetDetailedByIdAsync(id);
+            if (entity is null) return null;
 
-            await _paymentRepo.DeleteAsync(id);
-            return true;
+            entity.Status = status;
+
+            if (status == PaymentStatus.Completed)
+            {
+                entity.PaymentDate = DateTime.UtcNow;
+
+                var rental = entity.Rental;
+                if (rental != null && rental.Status == RentalStatus.Pending)
+                {
+                    rental.Status = RentalStatus.Confirmed;
+                    rental.ModifiedAt = DateTime.UtcNow;
+                    await _rentalRepo.UpdateAsync(rental);
+                }
+            }
+
+            await _paymentRepo.UpdateAsync(entity);
+            return _mapper.Map<PaymentDto>(entity);
         }
 
-        //public async Task<PaymentDto?> UpdateAsync(int id, UpdatePaymentDto dto)
-        //{
-        //    var entity = await _paymentRepo.GetByIdAsync(id);
-        //    if (entity is null) return null;
+        public async Task<PaymentDto?> UpdateMethodAsync(int id, PaymentMethod method)
+        {
+            var entity = await _paymentRepo.GetDetailedByIdAsync(id);
+            if (entity is null) return null;
 
-        //    _mapper.Map(dto, entity);
+            entity.PaymentMethod = method;
 
-        //    // Om Status sätts till Paid → sätt datum + uppdatera Rental
-        //    if (dto.Status is not null && Enum.TryParse<PaymentStatus>(dto.Status, out var status))
-        //    {
-        //        if (status == PaymentStatus.Completed)
-        //        {
-        //            entity.PaymentDate = DateTime.UtcNow;
-
-        //            var rental = entity.Rental;
-        //            if (rental != null && rental.Status == RentalStatus.Pending)
-        //            {
-        //                rental.Status = RentalStatus.Confirmed;
-        //                rental.ModifiedAt = DateTime.UtcNow;
-        //                await _rentalRepo.UpdateAsync(rental);
-        //            }
-        //        }
-        //    }
-
-        //    await _paymentRepo.UpdateAsync(entity);
-        //    return _mapper.Map<PaymentDto>(entity);
-        //}
-
-        //// Extra metod för att bara uppdatera status
-        //public async Task<PaymentDto?> UpdateStatusAsync(int id, PaymentStatus status)
-        //{
-        //    var entity = await _paymentRepo.GetDetailedByIdAsync(id);
-        //    if (entity is null) return null;
-
-        //    entity.Status = status;
-
-        //    if (status == PaymentStatus.Completed)
-        //    {
-        //        entity.PaymentDate = DateTime.UtcNow;
-
-        //        var rental = entity.Rental;
-        //        if (rental != null && rental.Status == RentalStatus.Pending)
-        //        {
-        //            rental.Status = RentalStatus.Confirmed;
-        //            rental.ModifiedAt = DateTime.UtcNow;
-        //            await _rentalRepo.UpdateAsync(rental);
-        //        }
-        //    }
-
-        //    await _paymentRepo.UpdateAsync(entity);
-        //    return _mapper.Map<PaymentDto>(entity);
-        //}
-
-        //public async Task<PaymentDto?> UpdateMethodAsync(int id, PaymentMethod method)
-        //{
-        //    var entity = await _paymentRepo.GetDetailedByIdAsync(id);
-        //    if (entity is null) return null;
-
-        //    entity.PaymentMethod = method;
-
-        //    await _paymentRepo.UpdateAsync(entity);
-        //    return _mapper.Map<PaymentDto>(entity);
-        //}
+            await _paymentRepo.UpdateAsync(entity);
+            return _mapper.Map<PaymentDto>(entity);
+        }
     }
 }

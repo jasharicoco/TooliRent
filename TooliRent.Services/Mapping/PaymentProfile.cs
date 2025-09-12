@@ -8,14 +8,18 @@ namespace TooliRent.Services.Mapping
     {
         public PaymentProfile()
         {
-            // Payment → PaymentDto
-            CreateMap<Payment, PaymentDto>();
+            CreateMap<Payment, PaymentDto>()
+                .ForMember(d => d.Method, o => o.MapFrom(s => s.PaymentMethod.ToString()))
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
 
-            // CreatePaymentDto → Payment
-            CreateMap<CreatePaymentDto, Payment>();
+            CreateMap<CreatePaymentDto, Payment>()
+                .ForMember(d => d.PaymentMethod, o => o.MapFrom(s => Enum.Parse<PaymentMethod>(s.Method, true)));
 
-            // UpdatePaymentDto → Payment
             CreateMap<UpdatePaymentDto, Payment>()
+                .ForMember(d => d.PaymentMethod, o => o.MapFrom((s, d) =>
+                    s.Method != null ? Enum.Parse<PaymentMethod>(s.Method, true) : d.PaymentMethod))
+                .ForMember(d => d.Status, o => o.MapFrom((s, d) =>
+                    s.Status != null ? Enum.Parse<PaymentStatus>(s.Status, true) : d.Status))
                 .ForAllMembers(opt => opt.Condition((src, dest, val) => val != null));
         }
     }

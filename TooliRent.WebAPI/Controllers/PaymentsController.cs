@@ -34,32 +34,23 @@ namespace TooliRent.WebAPI.Controllers
             return payment is null ? NotFound() : Ok(payment);
         }
 
-        // PATCH: api/payments/5
-        [HttpPatch("{id}")]
+        // PATCH: api/payments/5/status
+        [HttpPatch("{id}/status")]
         [Authorize(Roles = "Admin,Customer")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdatePaymentDto dto)
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdatePaymentStatusDto dto)
         {
-            var updated = await _paymentService.UpdateAsync(id, dto);
+            var updated = await _paymentService.UpdateStatusAsync(id, dto.Status);
             return updated is null ? NotFound() : Ok(updated);
         }
 
-        //// PATCH: api/payments/5/status
-        //[HttpPatch("{id}/status")]
-        //[Authorize(Roles = "Admin,Customer")]
-        //public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdatePaymentStatusDto dto)
-        //{
-        //    var updated = await _paymentService.UpdateStatusAsync(id, dto.Status);
-        //    return updated is null ? NotFound() : Ok(updated);
-        //}
-
-        //// PATCH: api/payments/5/method
-        //[HttpPatch("{id}/method")]
-        //[Authorize(Roles = "Admin,Customer")]
-        //public async Task<IActionResult> UpdateMethod(int id, [FromBody] UpdatePaymentMethodDto dto)
-        //{
-        //    var updated = await _paymentService.UpdateMethodAsync(id, dto.Method);
-        //    return updated is null ? NotFound() : Ok(updated);
-        //}
+        // PATCH: api/payments/5/method
+        [HttpPatch("{id}/method")]
+        [Authorize(Roles = "Admin,Customer")]
+        public async Task<IActionResult> UpdateMethod(int id, [FromBody] UpdatePaymentMethodDto dto)
+        {
+            var updated = await _paymentService.UpdateMethodAsync(id, dto.Method);
+            return updated is null ? NotFound() : Ok(updated);
+        }
 
     }
 }
