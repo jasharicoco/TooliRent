@@ -13,8 +13,13 @@ namespace TooliRent.Services.Mapping
                 .ForMember(d => d.CustomerName, o => o.MapFrom(s => s.Customer.User.FirstName + " " + s.Customer.User.LastName))
                 .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
 
+            CreateMap<CreateRentalDto, Rental>()
+                .ForMember(dest => dest.CustomerId, opt => opt.Ignore()) // Ignore CustomerId - set manually in service
+                .ForMember(dest => dest.TotalPrice, opt => opt.Ignore()) // Ignore TotalPrice - calculated in service
+                .ForMember(dest => dest.Status, opt => opt.Ignore()) // Ignore Status - set manually in service
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Ignore CreatedAt - set manually in service
+                .ForMember(dest => dest.ModifiedAt, opt => opt.Ignore()); // Ignore ModifiedAt - set manually in service
 
-            CreateMap<CreateRentalDto, Rental>(); // värden som sätts i service (TotalPrice, Status, timestamps)
             CreateMap<UpdateRentalDto, Rental>()
                 .ForAllMembers(opt => opt.Condition((src, dest, val) => val != null));
         }

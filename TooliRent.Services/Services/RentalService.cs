@@ -72,8 +72,8 @@ namespace TooliRent.Services.Services
         // Bokning (skapa rental)
         public async Task<RentalDto> CreateBookingAsync(CreateRentalDto dto)
         {
-            var customer = await _customerRepo.GetByIdAsync(dto.CustomerId)
-                           ?? throw new KeyNotFoundException("Customer not found");
+            var customer = await _customerRepo.GetByGuidAsync(dto.CustomerId)
+                   ?? throw new KeyNotFoundException("Customer not found");
 
             var tool = await _toolRepo.GetByIdAsync(dto.ToolId)
                        ?? throw new KeyNotFoundException("Tool not found");
@@ -110,7 +110,6 @@ namespace TooliRent.Services.Services
             // Hämta rental med inkluderade relationer
             var createdRental = await _rentalRepo.GetDetailedByIdAsync(rental.Id);
             return _mapper.Map<RentalDto>(createdRental);
-
         }
 
         // Status-uppdatering

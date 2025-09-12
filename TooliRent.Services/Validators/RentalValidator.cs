@@ -7,7 +7,13 @@ namespace TooliRent.Services.Validators
     {
         public CreateRentalDtoValidator()
         {
-            RuleFor(x => x.CustomerId).GreaterThan(0);
+            // To: Validate GUID format
+            RuleFor(x => x.CustomerId)
+                .NotEmpty()
+                .WithMessage("CustomerId är obligatoriskt.")
+                .Must(BeValidGuid)
+                .WithMessage("CustomerId måste vara ett giltigt GUID.");
+
             RuleFor(x => x.ToolId).GreaterThan(0);
 
             RuleFor(x => x.StartDate)
@@ -17,6 +23,11 @@ namespace TooliRent.Services.Validators
             RuleFor(x => x.EndDate)
                 .Must((dto, end) => end.Date > dto.StartDate.Date)
                 .WithMessage("EndDate måste vara efter StartDate (minst 1 dag).");
+        }
+
+        private bool BeValidGuid(string guid)
+        {
+            return Guid.TryParse(guid, out _);
         }
     }
 
