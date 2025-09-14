@@ -50,7 +50,7 @@ namespace TooliRent.Services.Services
 
                 tools = tools.Where(t =>
                     !t.Rentals.Any(r =>
-                        r.Status == RentalStatus.Confirmed || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Pending || r.Status == RentalStatus.Overdue ||
+                        (r.Status == RentalStatus.Confirmed || r.Status == RentalStatus.PickedUp || r.Status == RentalStatus.Pending || r.Status == RentalStatus.Overdue) &&
                         (r.StartDate.Date <= to && r.EndDate.Date >= from)
                     ));
             }

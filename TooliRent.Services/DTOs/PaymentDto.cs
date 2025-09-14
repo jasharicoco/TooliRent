@@ -17,4 +17,5 @@ namespace TooliRent.Services.DTOs
     public record UpdatePaymentDto(string? Method, string? Status);
 
     public record UpdatePaymentStatusDto(PaymentStatus Status);
+    public record UpdatePaymentMethodDto(PaymentMethod Method);
 }

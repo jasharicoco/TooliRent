@@ -17,7 +17,11 @@ namespace TooliRent.Services.DTOs
         public DateTime ModifiedAt { get; init; }
     }
 
-    public record CreateRentalDto(int CustomerId, int ToolId, DateTime StartDate, DateTime EndDate);
+    public record CreateRentalDto(string CustomerId, int ToolId, DateTime StartDate, DateTime EndDate);
+
+    public record CreateRentalByUserDto(string UserId, int ToolId, DateTime StartDate, DateTime EndDate);
+
+    public record CreateRentalByCustomerDto(int CustomerId, int ToolId, DateTime StartDate, DateTime EndDate);
 
     public record UpdateRentalDto(DateTime? EndDate);
 

@@ -25,6 +25,22 @@ namespace TooliRent
             var builder = WebApplication.CreateBuilder(args);
 
             // -------------------------------
+            // CORS Policy
+            // -------------------------------
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins(
+                        "http://localhost:5173",  // i fall du kör React med HTTP
+                        "https://localhost:5173"  // om frontend körs med HTTPS
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
+
+            // -------------------------------
             // Controllers & JSON Options
             // -------------------------------
             builder.Services.AddControllers()
@@ -162,6 +178,8 @@ namespace TooliRent
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowFrontend");
 
             app.UseAuthentication();
             app.UseAuthorization();

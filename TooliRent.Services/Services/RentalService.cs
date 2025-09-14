@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using TooliRent.Core.Models;
 using TooliRent.Infrastructure.Repositories.Interfaces;
 using TooliRent.Services.DTOs;
@@ -29,8 +28,9 @@ namespace TooliRent.Services.Services
             _mapper = mapper;
         }
 
-        //Generiska CRUD
-
+        // ---------------------------
+        // Generiska CRUD
+        // ---------------------------
         public async Task<IEnumerable<RentalDto>> GetAllAsync()
         {
             var all = await _rentalRepo.GetAllDetailedAsync();
@@ -44,7 +44,9 @@ namespace TooliRent.Services.Services
         }
 
         public async Task<RentalDto> CreateAsync(CreateRentalDto dto)
-            => await CreateBookingAsync(dto);
+        {
+            throw new NotImplementedException("Use CreateBookingByUserAsync or CreateBookingByCustomerAsync instead.");
+        }
 
         public async Task<RentalDto?> UpdateAsync(int id, UpdateRentalDto dto)
         {
@@ -70,57 +72,75 @@ namespace TooliRent.Services.Services
             return true;
         }
 
-        // Bokning (skapa rental)
-        public async Task<RentalDto> CreateBookingAsync(CreateRentalDto dto)
+        // ---------------------------
+        // Bokning
+        // ---------------------------
+        public async Task<RentalDto> CreateBookingByUserAsync(CreateRentalByUserDto dto)
+        {
+            var customer = await _customerRepo.GetByGuidAsync(dto.UserId)
+                           ?? throw new KeyNotFoundException("Customer not found for UserId");
+
+            return await CreateBookingInternal(customer.Id, dto.ToolId, dto.StartDate, dto.EndDate);
+        }
+
+        public async Task<RentalDto> CreateBookingByCustomerAsync(CreateRentalByCustomerDto dto)
         {
             var customer = await _customerRepo.GetByIdAsync(dto.CustomerId)
                            ?? throw new KeyNotFoundException("Customer not found");
 
-            var tool = await _toolRepo.GetByIdAsync(dto.ToolId)
+            return await CreateBookingInternal(customer.Id, dto.ToolId, dto.StartDate, dto.EndDate);
+        }
+
+        private async Task<RentalDto> CreateBookingInternal(int customerId, int toolId, DateTime start, DateTime end)
+        {
+            var tool = await _toolRepo.GetByIdAsync(toolId)
                        ?? throw new KeyNotFoundException("Tool not found");
 
-            var available = await _rentalRepo.ToolIsAvailableAsync(dto.ToolId, dto.StartDate.Date, dto.EndDate.Date);
+            var available = await _rentalRepo.ToolIsAvailableAsync(toolId, start.Date, end.Date);
             if (!available)
                 throw new InvalidOperationException("Tool is not available for selected dates");
 
-            var days = (dto.EndDate.Date - dto.StartDate.Date).Days;
+            var days = (end.Date - start.Date).Days;
             if (days < 1) days = 1;
             var totalPrice = tool.Price * days;
 
-            var rental = _mapper.Map<Rental>(dto);
-            rental.CustomerId = customer.Id;
-            rental.TotalPrice = totalPrice;
-            rental.Status = RentalStatus.Pending;
-            rental.CreatedAt = DateTime.UtcNow;
-            rental.ModifiedAt = DateTime.UtcNow;
+            var rental = new Rental
+            {
+                CustomerId = customerId,
+                ToolId = tool.Id,
+                StartDate = start,
+                EndDate = end,
+                TotalPrice = totalPrice,
+                Status = RentalStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow
+            };
 
             await _rentalRepo.AddAsync(rental);
 
-            // Skapa en "pending" payment kopplad till Rental
             var payment = new Payment
             {
                 RentalId = rental.Id,
                 Amount = totalPrice,
-                PaymentMethod = PaymentMethod.Invoice, // eller default
+                PaymentMethod = PaymentMethod.Invoice,
                 Status = PaymentStatus.Pending,
                 PaymentDate = DateTime.UtcNow
             };
 
             await _paymentRepo.AddAsync(payment);
 
-            // Hämta rental med inkluderade relationer
             var createdRental = await _rentalRepo.GetDetailedByIdAsync(rental.Id);
             return _mapper.Map<RentalDto>(createdRental);
-
         }
 
-        // Status-uppdatering
+        // ---------------------------
+        // Status
+        // ---------------------------
         public async Task<RentalDto?> UpdateStatusAsync(int id, RentalStatus status)
         {
             var rental = await _rentalRepo.GetDetailedByIdAsync(id);
             if (rental is null) return null;
 
-            // Kontrollera logiskt statusflöde
             switch (status)
             {
                 case RentalStatus.PickedUp:
@@ -143,37 +163,14 @@ namespace TooliRent.Services.Services
             return _mapper.Map<RentalDto>(updated);
         }
 
+        // ---------------------------
+        // Hämta bokningar
+        // ---------------------------
         public async Task<IEnumerable<RentalDto>> GetByUserIdAsync(string userId)
         {
             var rentals = await _rentalRepo.GetByUserIdAsync(userId);
             return _mapper.Map<IEnumerable<RentalDto>>(rentals);
         }
-
-        public async Task<bool> CancelBookingByUserAsync(string userId, int bookingId)
-        {
-            var rental = await _rentalRepo.GetDetailedByIdAsync(bookingId);
-            if (rental == null) return false;
-
-            // Kontrollera att bokningen tillhör användaren
-            if (rental.Customer?.User?.Id != userId) return false;
-
-            // Kontrollera om bokningen redan är avbokad
-            if (rental.Status == RentalStatus.Cancelled)
-                return false;
-
-            // Valfritt: kontrollera om bokningen redan är pågående eller avslutad
-            if (rental.Status == RentalStatus.Returned || rental.Status == RentalStatus.Overdue)
-                return false;
-
-            // Ändra status till "Cancelled"
-            rental.Status = RentalStatus.Cancelled;
-
-            // Uppdatera i databasen
-            await _rentalRepo.UpdateAsync(rental);
-
-            return true;
-        }
-
 
         public async Task<IEnumerable<RentalDto>> GetByCustomerIdAsync(int customerId)
         {
@@ -181,6 +178,27 @@ namespace TooliRent.Services.Services
             return _mapper.Map<IEnumerable<RentalDto>>(rentals);
         }
 
+        // ---------------------------
+        // Avboka
+        // ---------------------------
+        public async Task<bool> CancelBookingByUserAsync(string userId, int bookingId)
+        {
+            var rental = await _rentalRepo.GetDetailedByIdAsync(bookingId);
+            if (rental == null) return false;
+
+            if (rental.Customer?.User?.Id != userId) return false;
+            if (rental.Status == RentalStatus.Cancelled) return false;
+            if (rental.Status == RentalStatus.Returned || rental.Status == RentalStatus.Overdue) return false;
+
+            rental.Status = RentalStatus.Cancelled;
+            await _rentalRepo.UpdateAsync(rental);
+
+            return true;
+        }
+
+        // ---------------------------
+        // Statistik
+        // ---------------------------
         public async Task<RentalStatisticsDto> GetStatisticsAsync()
         {
             var totalRentals = await _rentalRepo.CountAsync();

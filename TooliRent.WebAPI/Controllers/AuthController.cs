@@ -95,6 +95,8 @@ namespace TooliRent.WebAPI.Controllers
             if (user == null)
                 return NotFound(new { Errors = new[] { "Associated user not found." } });
 
+            var roles = await _userManager.GetRolesAsync(user);
+
             var isActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow);
 
             var rentals = await _context.Rentals
@@ -112,36 +114,17 @@ namespace TooliRent.WebAPI.Controllers
                 .Select(r => r.Id)
                 .ToList();
 
-            return Ok(new
-            {
-                CustomerId = customer.Id,
-                UserId = user.Id,
-                Email = user.Email,
-                FullName = user.FirstName + " " + user.LastName,
-                IsActive = isActive,
-                ActiveRentalIds = activeRentalIds,
-                PastRentalIds = pastRentalIds
-            });
+            return Ok(new UserWithRolesDto(
+                customer.Id,
+                user.Id,
+                user.Email ?? "",
+                user.FirstName + " " + user.LastName,
+                roles,
+                isActive,
+                activeRentalIds,
+                pastRentalIds
+            ));
         }
-
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginDto dto)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(dto.Email);
-        //    if (user == null)
-        //    {
-        //        return NotFound(new { Errors = new[] { "Invalid email or password." } });
-        //    }
-        //    var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
-        //    if (!passwordValid)
-        //    {
-        //        return NotFound(new { Errors = new[] { "Wrong password." } });
-        //    }
-        //    var roles = await _userManager.GetRolesAsync(user);
-        //    var token = _tokens.CreateToken(user, roles);
-
-        //    return Ok(new AuthResponseDto(token));
-        //}
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
@@ -387,6 +370,5 @@ namespace TooliRent.WebAPI.Controllers
             rng.GetBytes(randomBytes);
             return Convert.ToBase64String(randomBytes);
         }
-
     }
 }

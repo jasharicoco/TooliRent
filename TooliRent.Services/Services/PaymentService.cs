@@ -41,6 +41,15 @@ namespace TooliRent.Services.Services
             return _mapper.Map<PaymentDto>(entity);
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var existing = await _paymentRepo.GetByIdAsync(id);
+            if (existing is null) return false;
+
+            await _paymentRepo.DeleteAsync(id);
+            return true;
+        }
+
         public async Task<PaymentDto?> UpdateAsync(int id, UpdatePaymentDto dto)
         {
             var entity = await _paymentRepo.GetByIdAsync(id);
@@ -69,15 +78,6 @@ namespace TooliRent.Services.Services
             return _mapper.Map<PaymentDto>(entity);
         }
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var existing = await _paymentRepo.GetByIdAsync(id);
-            if (existing is null) return false;
-
-            await _paymentRepo.DeleteAsync(id);
-            return true;
-        }
-
         // Extra metod för att bara uppdatera status
         public async Task<PaymentDto?> UpdateStatusAsync(int id, PaymentStatus status)
         {
@@ -98,6 +98,17 @@ namespace TooliRent.Services.Services
                     await _rentalRepo.UpdateAsync(rental);
                 }
             }
+
+            await _paymentRepo.UpdateAsync(entity);
+            return _mapper.Map<PaymentDto>(entity);
+        }
+
+        public async Task<PaymentDto?> UpdateMethodAsync(int id, PaymentMethod method)
+        {
+            var entity = await _paymentRepo.GetDetailedByIdAsync(id);
+            if (entity is null) return null;
+
+            entity.PaymentMethod = method;
 
             await _paymentRepo.UpdateAsync(entity);
             return _mapper.Map<PaymentDto>(entity);

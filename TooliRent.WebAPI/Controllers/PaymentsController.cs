@@ -42,5 +42,15 @@ namespace TooliRent.WebAPI.Controllers
             var updated = await _paymentService.UpdateStatusAsync(id, dto.Status);
             return updated is null ? NotFound() : Ok(updated);
         }
+
+        // PATCH: api/payments/5/method
+        [HttpPatch("{id}/method")]
+        [Authorize(Roles = "Admin,Customer")]
+        public async Task<IActionResult> UpdateMethod(int id, [FromBody] UpdatePaymentMethodDto dto)
+        {
+            var updated = await _paymentService.UpdateMethodAsync(id, dto.Method);
+            return updated is null ? NotFound() : Ok(updated);
+        }
+
     }
 }
