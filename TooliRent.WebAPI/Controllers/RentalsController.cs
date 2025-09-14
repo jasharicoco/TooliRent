@@ -61,8 +61,21 @@ namespace TooliRent.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var created = await _service.CreateBookingByUserAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            try
+            {
+                var created = await _service.CreateBookingByUserAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Verktyget inte tillgängligt
+                return Conflict(new { Errors = new[] { ex.Message } });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Customer/Tool inte hittat
+                return NotFound(new { Errors = new[] { ex.Message } });
+            }
         }
 
         // POST: skapa ny Rental via CustomerId
@@ -73,10 +86,20 @@ namespace TooliRent.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var created = await _service.CreateBookingByCustomerAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            try
+            {
+                var created = await _service.CreateBookingByCustomerAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Errors = new[] { ex.Message } });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Errors = new[] { ex.Message } });
+            }
         }
-
 
         // PUT: uppdatera t.ex. slutdatum
         [HttpPut("{id:int}")]

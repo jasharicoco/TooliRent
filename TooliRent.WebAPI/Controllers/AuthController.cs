@@ -47,7 +47,7 @@ namespace TooliRent.WebAPI.Controllers
                 customerLookup.TryGetValue(user.Id, out var customerId);
 
                 // Beräkna om användaren är aktiv
-                var isActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow);
+                var isActive = !user.LockoutEnd.HasValue || user.LockoutEnd <= DateTimeOffset.UtcNow;
 
                 // Hämta bokningar om du vill inkludera dem
                 var rentals = await _context.Rentals
@@ -97,7 +97,7 @@ namespace TooliRent.WebAPI.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            var isActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow);
+            var isActive = !user.LockoutEnd.HasValue || user.LockoutEnd <= DateTimeOffset.UtcNow;
 
             var rentals = await _context.Rentals
                 .AsNoTracking()
@@ -165,7 +165,8 @@ namespace TooliRent.WebAPI.Controllers
                 Email = dto.Email,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                LockoutEnd = null
             };
 
             var createResult = await _userManager.CreateAsync(user, dto.Password);
@@ -211,7 +212,8 @@ namespace TooliRent.WebAPI.Controllers
                 Email = dto.Email,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                LockoutEnd = null
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -241,7 +243,8 @@ namespace TooliRent.WebAPI.Controllers
                 Email = dto.Email,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                LockoutEnd = null
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -303,7 +306,7 @@ namespace TooliRent.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ToggleUserActiveStatus(int customerId)
         {
-            // Hämta customer utan att inkludera User
+            // Hämta customer
             var customer = await _context.Customers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == customerId);
@@ -311,35 +314,35 @@ namespace TooliRent.WebAPI.Controllers
             if (customer == null)
                 return NotFound(new { Errors = new[] { "Customer not found." } });
 
-            // Hämta AppUser separat via UserManager
+            // Hämta AppUser
             var user = await _userManager.FindByIdAsync(customer.UserId);
             if (user == null)
                 return NotFound(new { Errors = new[] { "Associated user not found." } });
 
-            // Växla status
-            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
+            // Växla status baserat på LockoutEnd
+            if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
             {
                 // Aktivera användaren
                 user.LockoutEnd = DateTimeOffset.UtcNow;
             }
             else
             {
-                // Inaktivera användaren (t.ex. 100 år framåt)
-                user.LockoutEnabled = true;
+                // Inaktivera användaren (100 år framåt)
                 user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
             }
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
-            {
                 return BadRequest(new { Errors = updateResult.Errors.Select(e => e.Description) });
-            }
+
+            // Beräkna isActive konsekvent
+            var isActive = !user.LockoutEnd.HasValue || user.LockoutEnd <= DateTimeOffset.UtcNow;
 
             return Ok(new
             {
                 CustomerId = customer.Id,
                 UserId = user.Id,
-                IsActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow)
+                IsActive = isActive
             });
         }
 
