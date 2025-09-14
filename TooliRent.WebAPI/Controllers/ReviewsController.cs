@@ -52,7 +52,7 @@ namespace TooliRent.WebAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = review.Id }, review);
         }
 
-        // Uppdatering av recensioner är inte tillåtet i nuläget
+        //// Uppdatering av recensioner är inte tillåtet i nuläget
         //[HttpPut("{id:int}")]
         //[Authorize]
         //public async Task<IActionResult> Update(int id, [FromBody] UpdateReviewDto dto)

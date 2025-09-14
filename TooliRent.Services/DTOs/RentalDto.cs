@@ -19,6 +19,10 @@ namespace TooliRent.Services.DTOs
 
     public record CreateRentalDto(string CustomerId, int ToolId, DateTime StartDate, DateTime EndDate);
 
+    public record CreateRentalByUserDto(string UserId, int ToolId, DateTime StartDate, DateTime EndDate);
+
+    public record CreateRentalByCustomerDto(int CustomerId, int ToolId, DateTime StartDate, DateTime EndDate);
+
     public record UpdateRentalDto(DateTime? EndDate);
 
     public record UpdateRentalStatusDto(RentalStatus Status);

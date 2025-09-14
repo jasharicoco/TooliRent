@@ -95,6 +95,8 @@ namespace TooliRent.WebAPI.Controllers
             if (user == null)
                 return NotFound(new { Errors = new[] { "Associated user not found." } });
 
+            var roles = await _userManager.GetRolesAsync(user);
+
             var isActive = !user.LockoutEnabled || (user.LockoutEnd <= DateTimeOffset.UtcNow);
 
             var rentals = await _context.Rentals
@@ -112,47 +114,17 @@ namespace TooliRent.WebAPI.Controllers
                 .Select(r => r.Id)
                 .ToList();
 
-            return Ok(new
-            {
-                CustomerId = customer.Id,
-                UserId = user.Id,
-                Email = user.Email,
-                FullName = user.FirstName + " " + user.LastName,
-                IsActive = isActive,
-                ActiveRentalIds = activeRentalIds,
-                PastRentalIds = pastRentalIds
-            });
+            return Ok(new UserWithRolesDto(
+                customer.Id,
+                user.Id,
+                user.Email ?? "",
+                user.FirstName + " " + user.LastName,
+                roles,
+                isActive,
+                activeRentalIds,
+                pastRentalIds
+            ));
         }
-
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginDto dto)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(dto.Email);
-        //    if (user == null) return NotFound(new { Errors = new[] { "Invalid email or password." } });
-
-        //    var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
-        //    if (!passwordValid) return NotFound(new { Errors = new[] { "Wrong password." } });
-
-        //    var roles = await _userManager.GetRolesAsync(user);
-        //    var customerId = await _context.Customers
-        //        .Where(c => c.UserId == user.Id)
-        //        .Select(c => c.Id)
-        //        .FirstOrDefaultAsync();
-
-        //    var accessToken = _tokens.CreateToken(user, roles);
-
-        //    // optional – keep cookie if you want refresh later
-        //    var refreshToken = GenerateRefreshToken();
-        //    Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-        //    {
-        //        HttpOnly = true,
-        //        Secure = true,
-        //        SameSite = SameSiteMode.Strict,
-        //        Expires = DateTime.UtcNow.AddDays(7)
-        //    });
-
-        //    return Ok(new { token = accessToken, refreshToken, customerId, roles });
-        //}
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)

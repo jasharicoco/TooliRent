@@ -53,14 +53,30 @@ namespace TooliRent.WebAPI.Controllers
             return dto is null ? NotFound() : Ok(dto);
         }
 
-        // POST: skapa ny Rental (bokning)
-        [HttpPost]
-        [Authorize] // autentiserad användare
-        public async Task<IActionResult> Create([FromBody] CreateRentalDto dto)
+        // POST: skapa ny Rental via UserId
+        [HttpPost("by-user")]
+        [Authorize]
+        public async Task<IActionResult> CreateByUser([FromBody] CreateRentalByUserDto dto)
         {
-            var created = await _service.CreateBookingAsync(dto);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _service.CreateBookingByUserAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
+
+        // POST: skapa ny Rental via CustomerId
+        [HttpPost("by-customer")]
+        [Authorize]
+        public async Task<IActionResult> CreateByCustomer([FromBody] CreateRentalByCustomerDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _service.CreateBookingByCustomerAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+
 
         // PUT: uppdatera t.ex. slutdatum
         [HttpPut("{id:int}")]

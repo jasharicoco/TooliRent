@@ -6,11 +6,21 @@ namespace TooliRent.Services.Services.Interfaces
     public interface IRentalService
         : IGenericService<Rental, RentalDto, CreateRentalDto, UpdateRentalDto>
     {
-        Task<RentalDto> CreateBookingAsync(CreateRentalDto dto);
+        // Skapa bokningar
+        Task<RentalDto> CreateBookingByUserAsync(CreateRentalByUserDto dto);
+        Task<RentalDto> CreateBookingByCustomerAsync(CreateRentalByCustomerDto dto);
+
+        // Uppdatera status på en bokning
         Task<RentalDto?> UpdateStatusAsync(int id, RentalStatus status);
+
+        // Hämta bokningar
         Task<IEnumerable<RentalDto>> GetByUserIdAsync(string userId);
-        Task<bool> CancelBookingByUserAsync(string userId, int bookingId);
         Task<IEnumerable<RentalDto>> GetByCustomerIdAsync(int customerId);
+
+        // Avboka bokning
+        Task<bool> CancelBookingByUserAsync(string userId, int bookingId);
+
+        // Statistik
         Task<RentalStatisticsDto> GetStatisticsAsync();
     }
 }

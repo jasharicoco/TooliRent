@@ -15,7 +15,7 @@
         PickedUp,   // kunden har hämtat verktyget
         Returned,   // verktyget är återlämnat
         Cancelled,  // avbokad
-        Overdue     // inte återlämnad i tid
+        Overdue     // inte återlämnad/upphämtad i tid
     }
 
     public enum PaymentMethod
