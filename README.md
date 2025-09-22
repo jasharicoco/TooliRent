@@ -111,8 +111,6 @@ Systemet använder 7 huvudtabeller:
 
 *Denna presentation visar den kompletta strukturen av TooliRent-systemet, från databasdesign till API-implementation.*
 
-
-=======
 # TooliRent API
 
 TooliRent är ett uthyrningssystem för verktyg. Backend är byggt med **ASP.NET Core Web API** och exponerar en uppsättning REST-endpoints för autentisering, uthyrningar, betalningar, recensioner och verktygshantering.
